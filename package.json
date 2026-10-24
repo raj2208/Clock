@@ -6,7 +6,9 @@
   "scripts": {
     "start": "electron .",
     "icon": "electron scripts/make-icon.js",
-    "package": "node scripts/package.js"
+    "package": "node scripts/package.js",
+    "zip": "node scripts/make-zip.js",
+    "dist": "node scripts/package.js && node scripts/make-zip.js"
   },
   "author": "Raj Kumar Rai",
   "license": "ISC",
