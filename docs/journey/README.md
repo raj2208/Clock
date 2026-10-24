@@ -16,8 +16,8 @@ A small always-on-top clock for macOS that floats in the top-right corner and st
 | 2 | Live ticking time | Done |
 | 3 | Frameless, always-on-top corner clock | Done |
 | 4 | Visible over full-screen apps | Done (the risky one, and it worked) |
-| 5 | Countdown, stopwatch, mode switching | Next |
-| 6 | Click-through and hotkeys | Planned |
+| 5 | Countdown, stopwatch, mode switching, start/pause/reset | Done (tested by script; I still need to check it by eye) |
+| 6 | Click-through and hotkeys | Next |
 | 7 | Resize and opacity | Planned |
 | 8 | Settings window | Planned |
 | 9 | Polish | Planned |
@@ -29,8 +29,9 @@ The full plan is in [`../roadmap.md`](../roadmap.md).
 
 1. [`01-planning-and-choosing-electron.md`](01-planning-and-choosing-electron.md): the idea, the options I compared, and why Electron.
 2. [`02-building-steps-1-to-4.md`](02-building-steps-1-to-4.md): each step, what I built, and what went wrong.
-3. [`03-git-and-workflow.md`](03-git-and-workflow.md): the GitHub workflow, a custom push skill, and the git hiccups.
-4. [`04-interview-prep.md`](04-interview-prep.md): the story in interview form, with likely questions and answers.
+3. [`05-step-5-timer-stopwatch-modes.md`](05-step-5-timer-stopwatch-modes.md): the countdown, stopwatch, mode switching, and start/pause/reset, built as four sub-steps.
+4. [`03-git-and-workflow.md`](03-git-and-workflow.md): the GitHub workflow, the custom skills, and the git hiccups.
+5. [`04-interview-prep.md`](04-interview-prep.md): the story in interview form, with likely questions and answers.
 
 ## Related docs
 
@@ -43,3 +44,5 @@ The full plan is in [`../roadmap.md`](../roadmap.md).
 1. **Do the risky step early.** Showing over full-screen apps was the one requirement that could have killed the Electron plan. I tested it at Step 4, not Step 10.
 2. **Read errors literally.** Both of my big setup errors were environment problems, not code problems.
 3. **Small steps make bugs obvious.** When something broke, only one thing had changed.
+4. **Store timestamps, not counters.** Timers built on an end time stay accurate, and can be tested by faking `Date.now`.
+5. **A new feature can break an old plan.** The buttons from Step 5 cannot be clicked once Step 6 makes the window click-through.

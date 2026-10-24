@@ -44,23 +44,23 @@ During development the app is only run with `pnpm start`. At the end, a packagin
 
 ## The steps
 
-### Step 1: Hello window
+### Step 1: Hello window (done)
 Install Electron and open a plain window that says "Hello". Proves the setup works.
 **Test:** `pnpm start` opens a window.
 
-### Step 2: Live time
+### Step 2: Live time (done)
 Show the current time in that window, updating every second.
 **Test:** the time ticks.
 
-### Step 3: Floating clock
+### Step 3: Floating clock (done)
 Make the window frameless (no title bar), always on top, and placed in the top-right corner.
 **Test:** it stays on top while I switch to Chrome and other apps.
 
-### Step 4: Full-screen test (risky step)
+### Step 4: Full-screen test (risky step) (done)
 Check that the clock stays visible over a full-screen Chrome window and a full-screen YouTube video, including on other desktops (Spaces).
 **Test:** open YouTube full screen and see the clock. If this proves unreliable in Electron, the fallback is Swift/SwiftUI (see `comparison.md`). We find this out early on purpose.
 
-### Step 5: Countdown, stopwatch, and modes
+### Step 5: Countdown, stopwatch, and modes (done)
 Add the countdown timer and the stopwatch, then a way to switch between clock, timer, and stopwatch.
 **Test:** each mode works, and start/pause/reset behave.
 

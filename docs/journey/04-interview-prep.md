@@ -1,6 +1,6 @@
 # 04: Interview prep
 
-The project told as a story, followed by likely questions and answers. Everything here is based on what actually happened in steps 1 to 4. Update it as the project grows.
+The project told as a story, followed by likely questions and answers. Everything here is based on what actually happened in steps 1 to 5. Update it as the project grows.
 
 ## The 30-second pitch
 
@@ -13,7 +13,7 @@ The project told as a story, followed by likely questions and answers. Everythin
 3. **Decision:** Electron, because I already know web technologies and it exposes all the window controls I need. The fallback was native Swift.
 4. **Process:** ten small steps, tested one at a time, committed after each. The riskiest one (full-screen overlay) came early.
 5. **Challenges:** a silent install failure, an environment variable that made Electron run as plain Node, and macOS Spaces blocking the window from full-screen apps.
-6. **Result:** a corner clock that stays on top of everything, including full-screen apps. Timer, stopwatch, click-through, hotkeys, and a settings window are next.
+6. **Result:** a corner clock that stays on top of everything, including full-screen apps, with a clock, a countdown timer, and a stopwatch (start, pause, reset, and mode switching). Click-through, hotkeys, resizing, and a settings window are next.
 
 ## Likely questions
 
@@ -58,9 +58,33 @@ I did not isolate which of these four was strictly necessary. I applied the reco
 
 macOS blocked screenshots of the app window because the capturing process lacked Screen Recording permission. I wrote a throwaway script that loaded the page in a hidden window and read the displayed time twice, 2 seconds apart, then compared it to the system clock. That verified the logic. I was explicit that the visual look and the full-screen behaviour still needed me to check them by eye, and I did.
 
-### Why check the time four times a second?
+### Why check the time several times a second?
 
-A one-second `setInterval` drifts and can skip a displayed second. Checking every 250 ms keeps the display at most 250 ms behind.
+A one-second `setInterval` drifts and can skip a displayed second. I started by checking every 250 ms, which keeps the display at most 250 ms behind. In Step 5 I moved to 100 ms so the stopwatch's tenths of a second update smoothly. One shared loop updates the clock, timer, and stopwatch.
+
+### How did you build an accurate countdown timer?
+
+I did not subtract a second on every tick. `setInterval` is not exact, so a late tick would make the timer fall behind real time. Instead I store the moment the countdown will reach zero (`endTime = Date.now() + duration`) and compute `endTime - Date.now()` on every tick. The display is correct however late a tick is. The stopwatch works the same way with a start time.
+
+### How did you test a 25-minute timer?
+
+I did not wait. A test script clicked the buttons in the real app, then overrode `Date.now` in the page to jump 25 minutes ahead and checked that the display read `00:00` in red and the buttons unlocked. That only works because the timer reads `Date.now()` each time. A tick-counting design could not be tested that way.
+
+### How do pause and resume work?
+
+On pause I save the time left (`endTime - Date.now()`) and clear `endTime`. On resume I set a new `endTime` from the saved value. The stopwatch banks the finished run into `elapsedBeforeMs` and clears its `startTime`. I tested that a paused display stays frozen (`24:58` stayed `24:58` for 1.5 seconds).
+
+### How did you structure the timer's logic?
+
+As four named states: idle, running, paused, and finished. Each button's behaviour follows from the state: reset is disabled when idle, plus and minus only work when idle or finished, and pressing play when finished restarts from the full duration. Naming the states replaced a tangle of special cases.
+
+### What happens to the timer when you switch modes?
+
+It keeps running. Switching mode only hides and shows elements (using a `data-mode` attribute and the `hidden` attribute). The timer and stopwatch state live separately from the display, and one loop keeps updating everything. I tested it by starting both, switching to the clock and back, and checking they had advanced.
+
+### Why do the buttons have `-webkit-app-region: no-drag`?
+
+The whole window is a drag handle, because a frameless window has no title bar to drag. Without `no-drag`, clicking a button would start dragging the window instead of pressing the button.
 
 ### What is a Content-Security-Policy and why did you add one?
 
@@ -82,13 +106,14 @@ Both overwrite remote history. `--force-with-lease` first checks that the remote
 
 ### What is next, and what is hard about it?
 
-Step 5 is the countdown, stopwatch, and mode switching. The hard part is Step 6: click-through and dragging conflict. If the window ignores mouse events, I cannot drag or resize it. My plan is a hotkey that toggles click-through off so I can move it, then on again.
+Step 6 is click-through and hotkeys. Click-through conflicts with two things I have already built. If the window ignores mouse events, I cannot drag it, and I cannot press its buttons either (mode, start, pause, reset). My plan is a hotkey that toggles click-through off so I can move it and use the buttons, then on again, plus hotkeys for start/pause and switching modes so I rarely need to turn click-through off.
 
 ## Things I should be honest about
 
 - I used an AI assistant to guide me and write code step by step. I tested each step myself and can explain every file.
 - The cause of the `NSWindow does not support nonactivating panel styleMask 0x80` warning is my understanding (Electron applies the non-activating flag and macOS complains), and I did not dig into Electron's source to confirm it. It is harmless in practice.
 - The full-screen behaviour was verified by hand, not by an automated test.
+- For Step 5, I tested the timer and stopwatch logic and the layout sizes with scripts that clicked the buttons in code and faked the time. I had not yet checked how it looks, or clicked the buttons with a real mouse while another app was in front.
 
 ## Quick facts
 
@@ -99,5 +124,6 @@ Step 5 is the countdown, stopwatch, and mode switching. The hard part is Step 6:
 | Package manager | pnpm |
 | Electron binary download | about 121 MB |
 | `node_modules` size | about 272 MB |
-| Window size | 220 × 80 |
-| Time refresh | every 250 ms |
+| Window size | 220 × 110 |
+| Refresh loop | every 100 ms |
+| Timer range | 1 to 99 minutes, default 25 |

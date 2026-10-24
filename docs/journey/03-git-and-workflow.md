@@ -22,6 +22,12 @@ Commit history so far:
 | make the clock a frameless always on top corner window | Step 3 |
 | show the clock over full screen apps | Step 4 |
 | add journey docs explaining the build and hiccups | The docs in this folder |
+| document the journey docs skill and commit history | Notes on the second skill |
+| add countdown timer with adjustable duration | Step 5a |
+| add stopwatch that counts up with tenths | Step 5b |
+| add mode button to switch clock timer stopwatch | Step 5c |
+| add start pause and reset for timer and stopwatch | Step 5d |
+| document step five timer stopwatch and modes | Journey notes for Step 5 |
 
 ## A custom push skill
 
