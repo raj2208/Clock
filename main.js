@@ -6,11 +6,14 @@ const { createSettingsStore, LIMITS } = require("./settings");
 const ASPECT_RATIO = 2;
 // Gap between the clock and the screen edges.
 const MARGIN = 16;
+const CORNERS = ["top-left", "top-right", "bottom-left", "bottom-right"];
 
 let store;
 let clockWindow = null;
+let settingsWindow = null;
 
 const heightFor = (width) => Math.round(width / ASPECT_RATIO);
+const clamp = (number, min, max) => Math.min(max, Math.max(min, number));
 
 // Is any part of this rectangle on a connected screen?
 // A saved position could be on a monitor that is no longer plugged in.
@@ -20,6 +23,27 @@ function isOnSomeScreen(rect) {
   });
 }
 
+// Where a window of this size sits in one corner of a screen's work area.
+// workArea is the screen minus the menu bar and Dock, so the clock never hides under them.
+function cornerPosition(corner, area, width, height) {
+  const left = corner.endsWith("left");
+  const top = corner.startsWith("top");
+  return {
+    x: left ? area.x + MARGIN : area.x + area.width - width - MARGIN,
+    y: top ? area.y + MARGIN : area.y + area.height - height - MARGIN,
+  };
+}
+
+// Moves a rectangle, if needed, so it is fully inside the screen it is on.
+function fitInsideScreen(bounds) {
+  const area = screen.getDisplayMatching(bounds).workArea;
+  return {
+    ...bounds,
+    x: clamp(bounds.x, area.x, Math.max(area.x, area.x + area.width - bounds.width)),
+    y: clamp(bounds.y, area.y, Math.max(area.y, area.y + area.height - bounds.height)),
+  };
+}
+
 function startingBounds() {
   const { width, x, y } = store.get();
   const height = heightFor(width);
@@ -27,9 +51,8 @@ function startingBounds() {
     return { x, y, width, height };
   }
   // First launch, or the saved spot is off-screen: top-right corner.
-  // workArea is the screen minus the menu bar and Dock, so the clock never hides under them.
   const area = screen.getPrimaryDisplay().workArea;
-  return { x: area.x + area.width - width - MARGIN, y: area.y + MARGIN, width, height };
+  return { ...cornerPosition("top-right", area, width, height), width, height };
 }
 
 // Sends the current settings to every open window.
@@ -85,6 +108,43 @@ function createClockWindow() {
   clockWindow = win;
 }
 
+function openSettingsWindow() {
+  // Only one settings window at a time: bring the existing one forward.
+  if (settingsWindow) {
+    settingsWindow.show();
+    settingsWindow.focus();
+    return;
+  }
+
+  settingsWindow = new BrowserWindow({
+    width: 380,
+    height: 440,
+    title: "Clock settings",
+    show: false,
+    resizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
+
+  // Stay above ordinary windows and follow into full-screen Spaces, like the clock does,
+  // so it is never hidden behind the app that I opened it from.
+  settingsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  settingsWindow.setAlwaysOnTop(true, "floating");
+
+  settingsWindow.loadFile("settings.html");
+  settingsWindow.once("ready-to-show", () => {
+    // The clock hides the Dock icon, so the app is not "active" until I ask for it.
+    app.focus({ steal: true });
+    settingsWindow.show();
+  });
+  settingsWindow.on("closed", () => {
+    settingsWindow = null;
+  });
+}
+
 // ---- Messages from the pages ----
 
 ipcMain.handle("settings:get", () => ({ settings: store.get() }));
@@ -95,14 +155,29 @@ ipcMain.handle("settings:update", (event, partial) => {
   if (clockWindow) {
     if (after.opacity !== before.opacity) clockWindow.setOpacity(after.opacity);
     if (after.width !== before.width) {
-      // Resize from the top-left corner, keeping the clock where it is.
+      // Resize from the top-left corner, then nudge back on screen if it now sticks out.
       const { x, y } = clockWindow.getBounds();
-      clockWindow.setBounds({ x, y, width: after.width, height: heightFor(after.width) });
+      const fitted = fitInsideScreen({ x, y, width: after.width, height: heightFor(after.width) });
+      clockWindow.setBounds(fitted);
+      store.update({ x: fitted.x, y: fitted.y });
     }
   }
   broadcastSettings();
   return store.get();
 });
+
+ipcMain.handle("window:place", (event, corner) => {
+  // Only the four known corners are accepted.
+  if (!clockWindow || !CORNERS.includes(corner)) return;
+  const bounds = clockWindow.getBounds();
+  const area = screen.getDisplayMatching(bounds).workArea;
+  const { x, y } = cornerPosition(corner, area, bounds.width, bounds.height);
+  clockWindow.setPosition(x, y);
+  store.update({ x, y });
+  broadcastSettings();
+});
+
+ipcMain.handle("settings:open", () => openSettingsWindow());
 
 app.whenReady().then(() => {
   store = createSettingsStore(path.join(app.getPath("userData"), "settings.json"));

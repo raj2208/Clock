@@ -217,6 +217,8 @@ opacityButton.addEventListener("click", () => {
   window.clockApp.updateSettings({ opacity: nextOpacity(currentOpacity) });
 });
 
+document.getElementById("settings-button").addEventListener("click", () => window.clockApp.openSettings());
+
 window.clockApp.getSettings().then(({ settings }) => showOpacity(settings.opacity));
 window.clockApp.onSettingsChanged((settings) => showOpacity(settings.opacity));
 

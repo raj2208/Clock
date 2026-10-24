@@ -9,4 +9,7 @@ contextBridge.exposeInMainWorld("clockApp", {
   onSettingsChanged: (callback) => {
     ipcRenderer.on("settings:changed", (_event, settings) => callback(settings));
   },
+  openSettings: () => ipcRenderer.invoke("settings:open"),
+  // corner is "top-left", "top-right", "bottom-left", or "bottom-right".
+  placeWindow: (corner) => ipcRenderer.invoke("window:place", corner),
 });

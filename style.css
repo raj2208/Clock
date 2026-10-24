@@ -58,6 +58,23 @@ button {
   cursor: pointer;
 }
 
+/* The settings button sits quietly in the top-right corner, out of the way of the time. */
+.corner-button {
+  position: fixed;
+  top: 0.4rem;
+  right: 0.5rem;
+  height: auto;
+  padding: 0.1rem 0.3rem;
+  background: transparent;
+  font-size: 1.5rem;
+  opacity: 0.45;
+}
+
+.corner-button:hover:not(:disabled) {
+  background: transparent;
+  opacity: 1;
+}
+
 button:hover:not(:disabled) {
   background: #3a3a3a;
 }

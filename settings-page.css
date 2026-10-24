@@ -1,0 +1,62 @@
+/* Follows the Mac's light or dark appearance automatically. */
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  padding: 20px 24px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+section {
+  margin-bottom: 22px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+input[type="range"] {
+  flex: 1;
+}
+
+output {
+  min-width: 52px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.corner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.corner-grid button {
+  padding: 8px;
+  font-size: 13px;
+}
+
+.hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  opacity: 0.6;
+}
