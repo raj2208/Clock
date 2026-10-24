@@ -41,6 +41,11 @@ Commit history so far:
 | add pnpm dist to make a release zip with checksum | Step 10c |
 | rename the app to time tracker | The rename, in code, scripts, and README |
 | document the rename to time tracker | Journey notes and doc updates for the rename |
+| document step ten packaging and the github cli | Journey notes for packaging and `gh` |
+| document the homebrew cleanup lesson | The Go and autoremove lesson |
+| add a menu bar icon and a script to build it | Step 9a, the icon |
+| add menu bar menu to show hide control and quit | Step 9a, the menu |
+| document the menu bar icon | Journey notes for Step 9a |
 
 The commit messages above that say "clock" are from before the rename. History is left as it was.
 

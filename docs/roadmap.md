@@ -77,7 +77,11 @@ A separate window to customize everything: size, opacity, colors, fonts, positio
 **Test:** change a setting and the clock updates live; restart and it is remembered.
 
 ### Step 9: Polish
-Colors, fonts, an alert (sound or color change) when the countdown reaches zero, and other UI details.
+Colors, fonts, an alert (sound or color change) when the countdown reaches zero, and other UI details. Built as sub-steps:
+- **9a (done):** a menu bar icon with a menu (show or hide, mode, start or pause, settings, quit). The app has no Dock icon, so this is its front door, and it also fixes the missing way to quit.
+- **9b:** show a running countdown as text next to the menu bar icon (for example `24:30`).
+- **9c:** an alert (sound or a stronger color change) when the countdown reaches zero.
+- **9d:** launch at login, as a tick box in the menu bar menu. It only makes sense in the packaged app.
 
 ### Step 10: Package as a real app (built; I still need to open it by hand)
 Bundle into `Time Tracker.app`, add it to Applications, and optionally launch at login. Built as sub-steps:

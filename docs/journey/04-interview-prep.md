@@ -200,6 +200,30 @@ Renaming a repository is a GitHub action, not a git one. Installing `gh` and log
 
 I uninstalled Go, which I had pulled in only to build the GitHub CLI. I checked that nothing depended on it first. But Homebrew also auto-removed several unrelated leftover packages in the same command, which I had said I would not touch. It does that by default. I had looked at a dry run, but only its last 8 lines, so I missed the full list. I then verified nothing broke (`brew missing`, running `ffmpeg` and `yt-dlp`, `brew linkage --test`), reported it to the user plainly, and turned off the developer mode that one of my checks had switched on. Lessons: read the whole preview, not its tail; know a tool's defaults before you run it; and verify afterwards, and say what happened.
 
+### What is a menu bar app, and why did Time Tracker need a menu bar icon?
+
+A menu bar app has no Dock icon and lives in an icon at the top of the screen, next to Wi-Fi and the battery (Electron calls it a `Tray`). Time Tracker hides its Dock icon on purpose, since that is part of what lets it appear over full-screen apps. But that left it with no icon anywhere: no obvious way to quit, to bring the window back if it was hidden, or to reach settings. The menu bar icon is its front door. It has show/hide, mode switching, start/pause, settings, and quit.
+
+### How does the menu stay in sync with the window?
+
+The mode and the running state live in the page, and the menu lives in the main process. So they message each other over IPC. The page reports `{ mode, timerRunning, stopwatchRunning }` whenever it changes (not ten times a second). The menu sends commands back (`set-mode`, `toggle`), and the page does the actual work, so the timer logic has a single owner. A native menu cannot change its labels after it is built, so every report rebuilds the menu ("Start timer" becomes "Pause timer").
+
+### How do you make a menu bar icon that works in light and dark mode?
+
+It has to be a **template image**: plain black on a transparent background, with a file name ending in `Template` (such as `trayIconTemplate.png`, plus `@2x` for Retina). macOS recolors it itself for light mode, dark mode, and the wallpaper. My script checks that the corner is transparent and every solid pixel is pure black.
+
+### How did you test a menu you could not see or click?
+
+I wrapped `Menu.buildFromTemplate` so the test script captured each menu as the app built it. Then the script read the labels and called each item's `click`, exactly as macOS would. It checked that the real window changed mode, the countdown started, paused, and resumed, and the menu's labels followed. I first tried to spy on the `Tray` class by replacing it, but the replacement silently did nothing and the script crashed, so I tested the menu instead (which is only built when the tray exists).
+
+### What bug did you catch only by thinking about packaging?
+
+The packaging script excluded the whole `assets/` folder, because the app icon is added separately. But the menu bar icon files are loaded at runtime, so the packaged app would have started fine and shown the fallback text "Time Tracker" in the menu bar, with no icon. The dev version would not have shown it. I made the exclusions specific, rebuilt, and listed the archive to confirm both PNGs were inside.
+
+### What did you leave out of the menu bar work, and why?
+
+Launch at login. It changes the Mac's login items, and it should only work in the packaged app, so I could not test it without altering the system. I also did not add the countdown text beside the icon yet. And I noted a limit: menu shortcuts like ⌘Q only work while the menu is open or the app is active, which this app usually is not.
+
 ### Why did you rename the project, and what did that involve?
 
 "Clock" is a plain name, and macOS already has a built-in Clock app, so the two would be confusing and hard to find. I renamed it to Time Tracker. The product name appears in many places: the app and bundle name, the bundle ID, `package.json` (`name` and `productName`), the window titles, the build folder and zip file, the settings folder (Electron derives it from the product name), the internal names, my local tooling, the docs, and the repository. I did a search for exact names, then read the leftover mentions to avoid renaming things that only use the ordinary word, like the "Clock" mode of the clock/timer/stopwatch switch. I did not launch the app afterwards. I checked the code's syntax, searched for the old internal names, and read the new build's `Info.plist`. I also had to leave two steps for myself: renaming the GitHub repo, and the folder I was working in.
@@ -225,6 +249,7 @@ Step 6 (click-through and hotkeys) is postponed on purpose. Click-through confli
 - I used an AI assistant to guide me and write code step by step. I tested each step myself and can explain every file.
 - The cause of the `NSWindow does not support nonactivating panel styleMask 0x80` warning is my understanding (Electron applies the non-activating flag and macOS complains), and I did not dig into Electron's source to confirm it. It is harmless in practice.
 - The full-screen behaviour was verified by hand, not by an automated test.
+- For the menu bar icon, I tested the menu by capturing it as the app built it and calling each item's handler, and I looked at the icon file. I had not yet seen it in the real menu bar, clicked it with a mouse, or tested a hidden window's timers. The ⌘Q shortcut only works while the menu is open.
 - For Step 10, I tested the packaged app through its debugging port and from a fresh unzip, but I had not yet opened it by double-clicking, put it in Applications, or looked at its icon in Finder. After the rename I rebuilt it and only read its name tags, without launching it. It is Apple Silicon only, and macOS rejects it (ad-hoc signature).
 - For Step 8, I tested the settings with scripts that drove the real settings window, and looked at rendered images. I had not yet clicked the gear with a real mouse, tried the native color picker, opened settings over a full-screen app, or seen a real drag fire the "moved" event (the app also saves on quit to cover that).
 - For Step 7, I tested the size limits and the opacity cycle from code, and looked at rendered images. I had not yet grabbed the window edge with a real mouse. Size and opacity are not remembered between launches, and I made the largest size four inches wide, which is two inches tall, because of the 2:1 shape.
