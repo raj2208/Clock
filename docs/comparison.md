@@ -1,4 +1,4 @@
-# Comparison: how to build the clock
+# Comparison: how to build Time Tracker
 
 This file records the options I considered for building an always-on-top clock/timer/stopwatch, and why I chose Electron.
 

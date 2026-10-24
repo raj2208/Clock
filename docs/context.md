@@ -1,5 +1,9 @@
 # Context
 
+## The name
+
+The app is called **Time Tracker**. It started as "Clock", but that name is very plain, and macOS already has a built-in Clock app in the Applications folder, so the two would be confusing side by side. The clock, timer, and stopwatch are still its three modes. Only the project's name changed: the app, the repository, the package, and the docs.
+
 ## Why this project exists
 
 I get distracted a lot while working. I think that if I had a small clock or timer always visible on my screen, I would get distracted less often and end up studying and working more.

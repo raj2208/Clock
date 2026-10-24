@@ -110,7 +110,7 @@ I wrote every size in `rem` and set the root font size from the window width: `h
 
 ### How does the page talk to the main process?
 
-Through IPC. The page calls `window.clockApp.setOpacity(...)`. A preload script exposes that one function with `contextBridge.exposeInMainWorld`, and it forwards the call with `ipcRenderer.invoke`. In `main.js`, `ipcMain.handle` receives it and changes the window. The page cannot call anything else.
+Through IPC. The page calls `window.timeTrackerApp.setOpacity(...)`. A preload script exposes that one function with `contextBridge.exposeInMainWorld`, and it forwards the call with `ipcRenderer.invoke`. In `main.js`, `ipcMain.handle` receives it and changes the window. The page cannot call anything else.
 
 ### Why a preload script and `contextBridge` instead of giving the page Node access?
 
@@ -164,6 +164,18 @@ My test moved the window with `setBounds()`, which does not fire "moved" or "res
 
 The app hides its Dock icon so it can sit over full-screen apps, which means macOS does not treat it as the active app. Without that call, the settings window could appear but not take focus.
 
+### Why did you rename the project, and what did that involve?
+
+"Clock" is a plain name, and macOS already has a built-in Clock app, so the two would be confusing and hard to find. I renamed it to Time Tracker. The product name appears in many places: the app and bundle name, the bundle ID, `package.json` (`name` and `productName`), the window titles, the build folder and zip file, the settings folder (Electron derives it from the product name), the internal names, my local tooling, the docs, and the repository. I did a search for exact names, then read the leftover mentions to avoid renaming things that only use the ordinary word, like the "Clock" mode of the clock/timer/stopwatch switch. I did not launch the app afterwards. I checked the code's syntax, searched for the old internal names, and read the new build's `Info.plist`. I also had to leave two steps for myself: renaming the GitHub repo, and the folder I was working in.
+
+### Why does `package.json` have both `name` and `productName`?
+
+`name` is the package's machine name: lowercase with a hyphen (`time-tracker`), the form tools expect. `productName` is the name people see (`Time Tracker`). Electron uses `productName` for the app's display name and for the folder where it saves settings.
+
+### Why is the zip named with hyphens when the app has a space in its name?
+
+The zip becomes a download link and a line in a Homebrew cask file, and spaces in links cause bugs. So the app is `Time Tracker.app` but the file is `Time-Tracker-0.1.0-arm64.zip`.
+
 ### Why did you skip Step 6 and do Step 7 first?
 
 Resizing and opacity did not depend on click-through or hotkeys, so the order was a free choice. I will come back to Step 6.
@@ -194,6 +206,6 @@ Step 6 (click-through and hotkeys) is postponed on purpose. Click-through confli
 | Opacity levels | 100%, 80%, 60%, 40%, 20% (the main process never goes below 10%) |
 | Refresh loop | every 100 ms |
 | Timer range | 1 to 99 minutes, default 25 (changeable in settings) |
-| Settings file | `~/Library/Application Support/clock/settings.json`, saved 300 ms after the last change |
+| Settings file | `~/Library/Application Support/Time Tracker/settings.json`, saved 300 ms after the last change |
 | Font choices | 6: System, Helvetica Neue, Avenir Next, Futura, Georgia, Menlo |
 | Settings checks | 37 plain-Node checks for the store, plus scripted tests of the real windows |

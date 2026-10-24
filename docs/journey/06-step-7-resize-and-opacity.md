@@ -68,10 +68,10 @@ The window itself is not transparent: its background is a solid dark rectangle. 
 
 Electron calls messages between the page and the main process IPC (inter-process communication). Three small pieces make it work:
 
-1. **`renderer.js`** (the page) calls `window.clockApp.setOpacity(0.6)`.
+1. **`renderer.js`** (the page) calls `window.timeTrackerApp.setOpacity(0.6)`.
 2. **`preload.js`** exposes that function to the page:
    ```js
-   contextBridge.exposeInMainWorld("clockApp", {
+   contextBridge.exposeInMainWorld("timeTrackerApp", {
      setOpacity: (value) => ipcRenderer.invoke("set-opacity", value),
    });
    ```

@@ -1,6 +1,6 @@
 # Roadmap
 
-How we will build the clock, step by step. Each step is small, gets run and looked at before moving on, and is committed to GitHub when it works. The goal is to learn Electron along the way without rushing.
+How we will build Time Tracker (first called "Clock"), step by step. Each step is small, gets run and looked at before moving on, and is committed to GitHub when it works. The goal is to learn Electron along the way without rushing.
 
 ## How Electron development works
 
@@ -31,7 +31,7 @@ The two halves talk to each other through messages (for example, the settings wi
 
 ### How it becomes a real app
 
-During development the app is only run with `pnpm start`. At the end, a packaging tool (Electron Forge or electron-builder) bundles it into a real `Clock.app` that can be dragged into Applications and launched at login. Code signing is not needed for a personal app.
+During development the app is only run with `pnpm start`. At the end, a packaging tool (Electron Forge or electron-builder) bundles it into a real `Time Tracker.app` that can be dragged into Applications and launched at login. Code signing is not needed for a personal app.
 
 ### Setup notes
 
@@ -80,22 +80,22 @@ A separate window to customize everything: size, opacity, colors, fonts, positio
 Colors, fonts, an alert (sound or color change) when the countdown reaches zero, and other UI details.
 
 ### Step 10: Package as a real app (in progress)
-Bundle into `Clock.app`, add it to Applications, and optionally launch at login. Built as sub-steps:
-- **10a:** package the app into `Clock.app` with one command (`pnpm package`).
+Bundle into `Time Tracker.app`, add it to Applications, and optionally launch at login. Built as sub-steps:
+- **10a:** package the app into `Time Tracker.app` with one command (`pnpm package`).
 - **10b:** give it a proper icon.
 - **10c:** make a zip of the app, with its checksum, ready to publish.
 
 **Test:** open the app without the terminal.
 
 ### Step 11: Publish a GitHub Release
-Upload the zipped `Clock.app` to a GitHub Release (for example `v0.1.0`) on the Clock repo, so it has a stable download link.
+Upload the zipped `Time Tracker.app` to a GitHub Release (for example `v0.1.0`) on the Time Tracker repo, so it has a stable download link.
 **Test:** the link downloads the zip, and the checksum matches.
 
 ### Step 12: Install with Homebrew
-Make the app installable with one command, through my own Homebrew tap (a second GitHub repo named `homebrew-clock`):
-- A cask file, `Casks/clock.rb`, holds the version, the download link, the checksum, and `app "Clock.app"`.
+Make the app installable with one command, through my own Homebrew tap (a second GitHub repo named `homebrew-time-tracker`):
+- A cask file, `Casks/time-tracker.rb`, holds the version, the download link, the checksum, and `app "Time Tracker.app"`.
 - It can also say what to delete on uninstall (the settings folder).
-- People then install it with `brew install --cask raj2208/clock/clock`.
+- People then install it with `brew install --cask raj2208/time-tracker/time-tracker`.
 
 **Test:** on my own Mac, run `brew install`, open the app, then `brew uninstall`.
 
@@ -111,5 +111,5 @@ Without it, macOS warns people who download the app on their own Mac, and they h
 
 - One step at a time, with no rushing.
 - Run and look at each step before moving on.
-- Commit and push to GitHub after each working step, using the clock-git-push skill.
+- Commit and push to GitHub after each working step, using the time-tracker-git-push skill.
 - Update `context.md` when a requirement or decision changes.

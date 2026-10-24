@@ -4,7 +4,7 @@ How the repo and the push workflow were set up, and the git hiccups along the wa
 
 ## The workflow
 
-After every working step: commit, then push to `main` on GitHub (`raj2208/Clock`). Each step is its own commit, so I can always roll back one step.
+After every working step: commit, then push to `main` on GitHub (`raj2208/Time-Tracker`). Each step is its own commit, so I can always roll back one step.
 
 Commit history so far:
 
@@ -35,12 +35,20 @@ Commit history so far:
 | add settings window with opacity size and position | Step 8b |
 | add colors font time format timer length and reset | Step 8c |
 | document step eight settings window | Journey notes for Step 8 |
+| add release and homebrew steps to the roadmap | Roadmap steps 11 to 13 |
+| package the clock into a mac app with pnpm package | Step 10a |
+| add a clock face app icon and pnpm icon script | Step 10b |
+| add pnpm dist to make a release zip with checksum | Step 10c |
+| rename the app to time tracker | The rename, in code, scripts, and README |
+| document the rename to time tracker | Journey notes and doc updates for the rename |
+
+The commit messages above that say "clock" are from before the rename. History is left as it was.
 
 For Step 7 I committed each sub-step locally as soon as it worked, but did not push until I said "push". That is the habit from the Step 3 and 4 hiccup: commit as soon as something works, so steps never get tangled, and still keep control over when code goes to GitHub.
 
 ## A custom push skill
 
-I wanted one consistent way to commit and push, so I copied a skill from my Terraform project and renamed it `clock-git-push`. A skill is a small instruction file that tells the AI assistant exactly how to do a task. This one says:
+I wanted one consistent way to commit and push, so I copied a skill from my Terraform project and renamed it `time-tracker-git-push`. A skill is a small instruction file that tells the AI assistant exactly how to do a task. This one says:
 
 1. Say that the skill is being used.
 2. `git add .`
@@ -48,14 +56,14 @@ I wanted one consistent way to commit and push, so I copied a skill from my Terr
 4. `git commit -m "message"` with **no** `Co-Authored-By` line.
 5. `git push origin main`.
 
-The skill lives in `.agents/skills/clock-git-push/SKILL.md` with a symlink at `.claude/skills/clock-git-push`. Both folders are in `.gitignore`, so the skill stays on my machine and is not published.
+The skill lives in `.agents/skills/time-tracker-git-push/SKILL.md` with a symlink at `.claude/skills/time-tracker-git-push`. Both folders are in `.gitignore`, so the skill stays on my machine and is not published.
 
 ## A second skill: documenting as I go
 
-Writing the journey docs at the end would mean forgetting the details, so I made a second skill, `clock-journey-docs`. After each finished step, solved bug, or changed decision, it updates `docs/journey/` and pushes the docs to GitHub.
+Writing the journey docs at the end would mean forgetting the details, so I made a second skill, `time-tracker-journey-docs`. After each finished step, solved bug, or changed decision, it updates `docs/journey/` and pushes the docs to GitHub.
 
 - **Standing permission:** I told it to push these documentation updates without asking me each time. Code pushes still wait for me to say "push".
-- **Docs only:** it stages `docs/` only (`git add docs/`), not everything. If it used `git add .` like `clock-git-push`, a docs commit could sweep up code changes I had not approved yet.
+- **Docs only:** it stages `docs/` only (`git add docs/`), not everything. If it used `git add .` like `time-tracker-git-push`, a docs commit could sweep up code changes I had not approved yet.
 - **Honest by design:** it must only record what actually happened and say what was not verified.
 - **Local only:** like the push skill, it lives in `.agents/skills/` and is gitignored.
 
