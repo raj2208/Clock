@@ -4,11 +4,13 @@
   "description": "An always-on-top clock, timer, and stopwatch to help me stay focused.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package": "node scripts/package.js"
   },
   "author": "Raj Kumar Rai",
   "license": "ISC",
   "devDependencies": {
+    "@electron/packager": "^20.3.0",
     "electron": "^45.0.0"
   }
 }
