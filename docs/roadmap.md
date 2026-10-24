@@ -72,8 +72,8 @@ Make the window click-through so it never blocks what is underneath. Add a globa
 Make it resizable from fingernail-sized up to roughly a four-inch square, with adjustable opacity.
 **Test:** extremes of size and opacity look right and stay readable.
 
-### Step 8: Settings window
-A separate window to customize everything: size, opacity, colors, fonts, position, and hotkeys. Settings are saved so they persist after quitting.
+### Step 8: Settings window (done)
+A separate window to customize everything: size, opacity, colors, fonts, position, and hotkeys (hotkeys wait for Step 6). Settings are saved so they persist after quitting.
 **Test:** change a setting and the clock updates live; restart and it is remembered.
 
 ### Step 9: Polish

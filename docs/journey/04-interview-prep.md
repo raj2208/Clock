@@ -1,6 +1,6 @@
 # 04: Interview prep
 
-The project told as a story, followed by likely questions and answers. Everything here is based on what actually happened in steps 1 to 5 and step 7 (step 6 is postponed). Update it as the project grows.
+The project told as a story, followed by likely questions and answers. Everything here is based on what actually happened in steps 1 to 5, 7, and 8 (step 6 is postponed). Update it as the project grows.
 
 ## The 30-second pitch
 
@@ -13,7 +13,7 @@ The project told as a story, followed by likely questions and answers. Everythin
 3. **Decision:** Electron, because I already know web technologies and it exposes all the window controls I need. The fallback was native Swift.
 4. **Process:** ten small steps, tested one at a time, committed after each. The riskiest one (full-screen overlay) came early.
 5. **Challenges:** a silent install failure, an environment variable that made Electron run as plain Node, and macOS Spaces blocking the window from full-screen apps.
-6. **Result:** a corner clock that stays on top of everything, including full-screen apps, with a clock, a countdown timer, and a stopwatch (start, pause, reset, and mode switching). It can be resized from fingernail-size to about four inches, with adjustable opacity. Click-through, hotkeys, and a settings window are next.
+6. **Result:** a corner clock that stays on top of everything, including full-screen apps, with a clock, a countdown timer, and a stopwatch (start, pause, reset, and mode switching). It can be resized from fingernail-size to about four inches, with adjustable opacity. A settings window customizes colors, font, 12/24-hour time, and timer length, and everything is remembered between launches. Click-through and hotkeys are next.
 
 ## Likely questions
 
@@ -128,19 +128,56 @@ The window itself is not transparent. Its background is a solid rectangle, so CS
 
 Early on, `screencapture` returned only the wallpaper, because macOS blocks capturing other apps' windows without Screen Recording permission. Later I used `webContents.capturePage()`, which asks the page for its own pixels, needing no permission. I saved the render to a PNG and looked at it. That caught a problem a numeric check had passed: the new opacity button was taller than its neighbours, and the row had only 5px to spare. I fixed it with a fixed button height.
 
+### How do you save and load settings safely?
+
+A small store module holds the defaults and one validator per setting. Each validator returns a clean value or `undefined`. When a value comes in (from the file, or from the page), only the usable fields replace the current ones, so a bad value never overwrites a good one. Saving is debounced by 300 ms, because dragging a window changes its position many times a second. It writes to a temporary file and renames it, so a crash can never leave a half-written file. A missing, corrupt, or hand-edited file falls back to defaults, field by field.
+
+### Why does the settings store not use Electron?
+
+So it can be tested with plain Node, in seconds, with no window. It only uses `fs` and `path`, and it takes the file path as an argument. I wrote 37 checks for it, including corrupt files, prototype-pollution keys, and injection strings, before it was connected to the app.
+
+### How do colors and fonts get into the page without being a security risk?
+
+Nothing arbitrary becomes CSS. A color must match `^#[0-9a-fA-F]{6}$`. A font is not stored as text: the file stores a short key like `"mono"`, and only keys in a fixed list are accepted. The CSS font stack comes from that list. I tested injection strings like `#000; background:url(http://evil)` and `</style><script>`, and they were all rejected.
+
+### How do several windows stay in sync?
+
+The main process owns the settings. Any window asks it to change something (`settings:update`). It validates, applies the change to the clock window, saves, and then broadcasts the new settings to every window. So dragging the clock's edge moves the slider in the settings window, and the ◐ button moves the opacity slider.
+
+### What bug did a broadcast almost cause?
+
+The page re-applies all the settings on every broadcast, and the main process broadcasts whenever the clock is moved or resized. If the page set the timer length from settings each time, moving the clock would reset my `+` and `−` adjustments. I made the page remember the last timer length it saw and only react when that value really changes. I tested it: 41:00 stays 41:00 after resizing the clock.
+
+### What if the saved position is on a monitor that is gone?
+
+At startup I check whether any part of the saved rectangle is on a connected screen (`screen.getAllDisplays()`). If not, the clock goes to the top-right corner of the main screen. I tested this with a position of 99999, 99999.
+
+### What was a test that caught a real bug in this step?
+
+The settings window's content was 700 px tall in a window whose view was 632 px, so the Reset button would have been cut off. A check that compares `scrollHeight` to `innerHeight` failed. I tightened the spacing and made the window taller, and it now fits exactly.
+
+### What does it mean when a test has to fake an event?
+
+My test moved the window with `setBounds()`, which does not fire "moved" or "resized" (those fire for real user drags). I had to emit them by hand, which meant I had not proved the real events fire. So I added a safety net: the app also saves the clock's position when it quits, and I made `Ctrl+C` quit properly so that save still runs. I tested both kill signals. The lesson is to be open about what a test did not prove, and to cover it.
+
+### Why `app.focus({ steal: true })` for the settings window?
+
+The app hides its Dock icon so it can sit over full-screen apps, which means macOS does not treat it as the active app. Without that call, the settings window could appear but not take focus.
+
 ### Why did you skip Step 6 and do Step 7 first?
 
 Resizing and opacity did not depend on click-through or hotkeys, so the order was a free choice. I will come back to Step 6.
 
 ### What is next, and what is hard about it?
 
-Step 6 (click-through and hotkeys) is postponed on purpose. Click-through conflicts with things I have already built. If the window ignores mouse events, I cannot drag it, I cannot drag its edges to resize it, and I cannot press its buttons (mode, start, pause, reset, opacity). My plan is a hotkey that toggles click-through off so I can move it and use the buttons, then on again, plus hotkeys for start/pause and switching modes so I rarely need to turn click-through off.
+Step 6 (click-through and hotkeys) is postponed on purpose. Click-through conflicts with things I have already built. If the window ignores mouse events, I cannot drag it, I cannot drag its edges to resize it, and I cannot press its buttons (mode, start, pause, reset, opacity, or the settings gear). Hotkeys will also get controls in the settings window. My plan is a hotkey that toggles click-through off so I can move it and use the buttons, then on again, plus hotkeys for start/pause and switching modes so I rarely need to turn click-through off.
 
 ## Things I should be honest about
 
 - I used an AI assistant to guide me and write code step by step. I tested each step myself and can explain every file.
 - The cause of the `NSWindow does not support nonactivating panel styleMask 0x80` warning is my understanding (Electron applies the non-activating flag and macOS complains), and I did not dig into Electron's source to confirm it. It is harmless in practice.
 - The full-screen behaviour was verified by hand, not by an automated test.
+- For Step 8, I tested the settings with scripts that drove the real settings window, and looked at rendered images. I had not yet clicked the gear with a real mouse, tried the native color picker, opened settings over a full-screen app, or seen a real drag fire the "moved" event (the app also saves on quit to cover that).
 - For Step 7, I tested the size limits and the opacity cycle from code, and looked at rendered images. I had not yet grabbed the window edge with a real mouse. Size and opacity are not remembered between launches, and I made the largest size four inches wide, which is two inches tall, because of the 2:1 shape.
 - For Step 5, I tested the timer and stopwatch logic and the layout sizes with scripts that clicked the buttons in code and faked the time. I had not yet checked how it looks, or clicked the buttons with a real mouse while another app was in front.
 
@@ -156,4 +193,7 @@ Step 6 (click-through and hotkeys) is postponed on purpose. Click-through confli
 | Window size | 220 × 110 by default; 66 × 33 to 490 × 245 when resized (always 2:1) |
 | Opacity levels | 100%, 80%, 60%, 40%, 20% (the main process never goes below 10%) |
 | Refresh loop | every 100 ms |
-| Timer range | 1 to 99 minutes, default 25 |
+| Timer range | 1 to 99 minutes, default 25 (changeable in settings) |
+| Settings file | `~/Library/Application Support/clock/settings.json`, saved 300 ms after the last change |
+| Font choices | 6: System, Helvetica Neue, Avenir Next, Futura, Georgia, Menlo |
+| Settings checks | 37 plain-Node checks for the store, plus scripted tests of the real windows |

@@ -31,6 +31,10 @@ Commit history so far:
 | make the clock resizable with scaling content | Step 7a |
 | add opacity button using a safe preload bridge | Step 7b |
 | document step seven resize and opacity | Journey notes for Step 7 |
+| save size position and opacity between launches | Step 8a |
+| add settings window with opacity size and position | Step 8b |
+| add colors font time format timer length and reset | Step 8c |
+| document step eight settings window | Journey notes for Step 8 |
 
 For Step 7 I committed each sub-step locally as soon as it worked, but did not push until I said "push". That is the habit from the Step 3 and 4 hiccup: commit as soon as something works, so steps never get tangled, and still keep control over when code goes to GitHub.
 
