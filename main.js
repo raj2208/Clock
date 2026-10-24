@@ -2,6 +2,11 @@ const { app, BrowserWindow, screen } = require("electron");
 
 const WIDTH = 220;
 const HEIGHT = 110;
+// Smallest and largest width I can resize to. Heights follow from the 2:1 shape.
+// On a typical MacBook screen (about 125 pixels per inch) 66 is roughly a fingernail
+// and 490 is roughly four inches. Change these to suit your screen.
+const MIN_WIDTH = 66;
+const MAX_WIDTH = 490;
 // Gap between the clock and the screen edges.
 const MARGIN = 16;
 
@@ -20,11 +25,18 @@ function createWindow() {
     // A "panel" is a lightweight macOS window (like Spotlight) that is allowed
     // to appear over full-screen apps, and doesn't steal focus from them.
     type: "panel",
-    // Resizing comes later (Step 7).
-    resizable: false,
+    // Drag the edges or corners to resize.
+    resizable: true,
+    minWidth: MIN_WIDTH,
+    minHeight: MIN_WIDTH * (HEIGHT / WIDTH),
+    maxWidth: MAX_WIDTH,
+    maxHeight: MAX_WIDTH * (HEIGHT / WIDTH),
     // Let the very first click on a button work, even while another app is in front.
     acceptFirstMouse: true,
   });
+
+  // Keep the clock's shape (2:1) while resizing, so everything inside scales evenly.
+  win.setAspectRatio(WIDTH / HEIGHT);
 
   // Appear in every Space, including the Space of a full-screen app.
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
