@@ -15,9 +15,11 @@ const LEFT_OUT = [
   // "nodeLinker: hoisted" in pnpm-workspace.yaml so the packager can find it.
   /^\/node_modules($|\/)/,
   /^\/docs($|\/)/,
-  // The icon is added to the app separately (see "icon" below), so the copies in assets
-  // don't need to be inside the app's files as well.
-  /^\/assets($|\/)/,
+  // The app icon is added to the app separately (see "icon" below), and the SVG drawings
+  // are only used to make the icons, so none of those need to be inside the app's files.
+  // The menu bar icon PNGs (assets/trayIconTemplate*.png) DO: the app loads them at runtime.
+  /^\/assets\/icon\.(svg|icns)$/,
+  /^\/assets\/tray-icon\.svg$/,
   /^\/out($|\/)/,
   /^\/scripts($|\/)/,
   /^\/\.git($|\/)/,

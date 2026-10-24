@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen } = require("electron");
+const { app, BrowserWindow, Menu, Tray, ipcMain, nativeImage, screen } = require("electron");
 const path = require("path");
 const { createSettingsStore, FONT_OPTIONS, LIMITS } = require("./settings");
 
@@ -11,6 +11,7 @@ const CORNERS = ["top-left", "top-right", "bottom-left", "bottom-right"];
 let store;
 let mainWindow = null;
 let settingsWindow = null;
+let tray = null;
 
 const heightFor = (width) => Math.round(width / ASPECT_RATIO);
 const clamp = (number, min, max) => Math.min(max, Math.max(min, number));
@@ -145,6 +146,78 @@ function openSettingsWindow() {
   });
 }
 
+// ---- The menu bar icon ----
+//
+// The icon at the top of the screen, next to Wi-Fi and the battery. The app has no Dock icon,
+// so this is its front door: it is how I show, hide, control, and quit it.
+
+// These must match MODES in renderer.js.
+const MODES = ["clock", "timer", "stopwatch"];
+const MODE_LABELS = { clock: "Clock", timer: "Timer", stopwatch: "Stopwatch" };
+
+// What the page last told me it is doing, so the menu can show the right labels.
+let appState = { mode: "clock", timerRunning: false, stopwatchRunning: false };
+
+// Asks the page to do something (switch mode, start or pause).
+function sendCommand(command) {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("app:command", command);
+}
+
+function toggleMainWindowVisible() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  // showInactive() shows the window without taking focus from the app I am using.
+  if (mainWindow.isVisible()) mainWindow.hide();
+  else mainWindow.showInactive();
+  refreshTrayMenu();
+}
+
+function buildTrayMenu() {
+  const visible = Boolean(mainWindow) && !mainWindow.isDestroyed() && mainWindow.isVisible();
+  // "Start or pause" only means something in Timer and Stopwatch mode.
+  const canToggle = appState.mode !== "clock";
+  const running = appState.mode === "timer" ? appState.timerRunning : appState.stopwatchRunning;
+  const toggleLabel = canToggle ? `${running ? "Pause" : "Start"} ${appState.mode}` : "Start or pause";
+
+  return Menu.buildFromTemplate([
+    { label: visible ? "Hide Time Tracker" : "Show Time Tracker", click: toggleMainWindowVisible },
+    { type: "separator" },
+    {
+      label: "Mode",
+      submenu: MODES.map((mode) => ({
+        label: MODE_LABELS[mode],
+        type: "radio",
+        checked: appState.mode === mode,
+        click: () => sendCommand({ type: "set-mode", mode }),
+      })),
+    },
+    { label: toggleLabel, enabled: canToggle, click: () => sendCommand({ type: "toggle" }) },
+    { type: "separator" },
+    { label: "Settings…", click: openSettingsWindow },
+    { type: "separator" },
+    { label: "Quit Time Tracker", accelerator: "Command+Q", click: () => app.quit() },
+  ]);
+}
+
+// A menu cannot change its labels once it is built, so build a new one when something changes.
+function refreshTrayMenu() {
+  if (tray) tray.setContextMenu(buildTrayMenu());
+}
+
+function createTray() {
+  // "Template" in the file name tells macOS to recolor the icon to suit the menu bar.
+  const icon = nativeImage.createFromPath(path.join(__dirname, "assets", "trayIconTemplate.png"));
+  icon.setTemplateImage(true);
+
+  tray = new Tray(icon);
+  tray.setToolTip("Time Tracker");
+  // If the icon file is ever missing, the item would be invisible, so show its name instead.
+  if (icon.isEmpty()) tray.setTitle("Time Tracker");
+  refreshTrayMenu();
+
+  mainWindow.on("show", refreshTrayMenu);
+  mainWindow.on("hide", refreshTrayMenu);
+}
+
 // ---- Messages from the pages ----
 
 ipcMain.handle("settings:get", () => ({ settings: store.get(), fonts: FONT_OPTIONS }));
@@ -192,6 +265,18 @@ ipcMain.handle("window:place", (event, corner) => {
 
 ipcMain.handle("settings:open", () => openSettingsWindow());
 
+// The page reports what it is doing, so the menu bar menu can show the right labels.
+ipcMain.on("app:state", (event, state) => {
+  // Only the main window may report, and only a well-formed report is accepted.
+  if (!mainWindow || event.sender !== mainWindow.webContents) return;
+  if (!state || !MODES.includes(state.mode)) return;
+  if (typeof state.timerRunning !== "boolean" || typeof state.stopwatchRunning !== "boolean") return;
+  const next = { mode: state.mode, timerRunning: state.timerRunning, stopwatchRunning: state.stopwatchRunning };
+  if (JSON.stringify(next) === JSON.stringify(appState)) return;
+  appState = next;
+  refreshTrayMenu();
+});
+
 app.whenReady().then(() => {
   store = createSettingsStore(path.join(app.getPath("userData"), "settings.json"));
 
@@ -199,6 +284,7 @@ app.whenReady().then(() => {
   app.dock.hide();
 
   createMainWindow();
+  createTray();
 
   // On macOS, clicking the Dock icon with no windows open should open one again.
   app.on("activate", () => {

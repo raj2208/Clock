@@ -11,6 +11,12 @@ contextBridge.exposeInMainWorld("timeTrackerApp", {
     ipcRenderer.on("settings:changed", (_event, settings) => callback(settings));
   },
   openSettings: () => ipcRenderer.invoke("settings:open"),
+  // Tells the menu bar menu what the page is doing: { mode, timerRunning, stopwatchRunning }.
+  reportState: (state) => ipcRenderer.send("app:state", state),
+  // Calls `callback` when the menu bar menu asks the page to do something.
+  onCommand: (callback) => {
+    ipcRenderer.on("app:command", (_event, command) => callback(command));
+  },
   // corner is "top-left", "top-right", "bottom-left", or "bottom-right".
   placeWindow: (corner) => ipcRenderer.invoke("window:place", corner),
 });

@@ -215,6 +215,33 @@ function nextMode() {
 modeButton.addEventListener("click", nextMode);
 setMode(currentMode);
 
+// ---- Menu bar ----
+//
+// The menu bar icon's menu lives in main.js. It needs to know what I am doing, so the
+// labels are right ("Pause timer" while it runs), and it can ask me to do things.
+
+let lastReportedState = "";
+
+function reportState() {
+  const state = { mode: currentMode, timerRunning: timerIsRunning(), stopwatchRunning: stopwatchIsRunning() };
+  const key = JSON.stringify(state);
+  // Only send a message when something changed, not ten times a second.
+  if (key === lastReportedState) return;
+  lastReportedState = key;
+  window.timeTrackerApp.reportState(state);
+}
+
+window.timeTrackerApp.onCommand((command) => {
+  if (!command) return;
+  if (command.type === "set-mode" && MODES.includes(command.mode)) {
+    setMode(command.mode);
+  } else if (command.type === "toggle") {
+    // Start or pause whichever of the timer and stopwatch is on screen.
+    if (currentMode === "timer") toggleTimer();
+    else if (currentMode === "stopwatch") toggleStopwatch();
+  }
+});
+
 // ---- Opacity ----
 
 // Each click makes the window a bit more see-through, then it wraps back to solid.
@@ -288,6 +315,7 @@ function render() {
   renderClock();
   renderTimer();
   renderStopwatch();
+  reportState();
 }
 
 render();
