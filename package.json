@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
+    "icon": "electron scripts/make-icon.js",
     "package": "node scripts/package.js"
   },
   "author": "Raj Kumar Rai",

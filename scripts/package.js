@@ -15,6 +15,9 @@ const LEFT_OUT = [
   // "nodeLinker: hoisted" in pnpm-workspace.yaml so the packager can find it.
   /^\/node_modules($|\/)/,
   /^\/docs($|\/)/,
+  // The icon is added to the app separately (see "icon" below), so the copies in assets
+  // don't need to be inside the app's files as well.
+  /^\/assets($|\/)/,
   /^\/out($|\/)/,
   /^\/scripts($|\/)/,
   /^\/\.git($|\/)/,
@@ -56,6 +59,8 @@ async function main() {
     // Skip the "remove unused dependencies" step. It can't follow pnpm's folder layout,
     // and there is nothing to remove, because node_modules is left out above.
     prune: false,
+    // Made by "pnpm icon". The packager adds the ".icns" itself.
+    icon: "assets/icon",
     appBundleId: "com.raj2208.clock",
     appVersion: version,
     appCopyright: `Copyright © 2026 ${author}`,
