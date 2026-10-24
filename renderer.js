@@ -7,6 +7,8 @@ const timerDisplay = document.getElementById("timer-display");
 const timerMinus = document.getElementById("timer-minus");
 const timerPlus = document.getElementById("timer-plus");
 const timerStart = document.getElementById("timer-start");
+const stopwatchDisplay = document.getElementById("stopwatch-display");
+const stopwatchStart = document.getElementById("stopwatch-start");
 
 function pad(number) {
   return String(number).padStart(2, "0");
@@ -74,11 +76,47 @@ timerMinus.addEventListener("click", () => changeDuration(-MINUTE));
 timerPlus.addEventListener("click", () => changeDuration(MINUTE));
 timerStart.addEventListener("click", startTimer);
 
+// ---- Stopwatch ----
+
+const stopwatch = {
+  // Time counted before the current run began. Pause and reset will use this.
+  elapsedBeforeMs: 0,
+  // When the current run began. null when it is not running.
+  // Like the timer, we compare against the real clock instead of adding up ticks.
+  startTime: null,
+};
+
+function stopwatchElapsedMs() {
+  if (stopwatch.startTime === null) return stopwatch.elapsedBeforeMs;
+  return stopwatch.elapsedBeforeMs + (Date.now() - stopwatch.startTime);
+}
+
+function startStopwatch() {
+  if (stopwatch.startTime !== null) return;
+  stopwatch.startTime = Date.now();
+  renderStopwatch();
+}
+
+// Turns milliseconds into "MM:SS.t", where t is tenths of a second.
+function formatStopwatch(ms) {
+  const tenths = Math.floor(ms / 100) % 10;
+  const totalSeconds = Math.floor(ms / 1000);
+  return `${pad(Math.floor(totalSeconds / 60))}:${pad(totalSeconds % 60)}.${tenths}`;
+}
+
+function renderStopwatch() {
+  stopwatchDisplay.textContent = formatStopwatch(stopwatchElapsedMs());
+  stopwatchStart.disabled = stopwatch.startTime !== null;
+}
+
+stopwatchStart.addEventListener("click", startStopwatch);
+
 // ---- Main loop ----
 
 function render() {
   renderClock();
   renderTimer();
+  renderStopwatch();
 }
 
 render();

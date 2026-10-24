@@ -1,7 +1,7 @@
 const { app, BrowserWindow, screen } = require("electron");
 
 const WIDTH = 220;
-const HEIGHT = 120;
+const HEIGHT = 160;
 // Gap between the clock and the screen edges.
 const MARGIN = 16;
 
