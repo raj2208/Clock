@@ -28,6 +28,11 @@ Commit history so far:
 | add mode button to switch clock timer stopwatch | Step 5c |
 | add start pause and reset for timer and stopwatch | Step 5d |
 | document step five timer stopwatch and modes | Journey notes for Step 5 |
+| make the clock resizable with scaling content | Step 7a |
+| add opacity button using a safe preload bridge | Step 7b |
+| document step seven resize and opacity | Journey notes for Step 7 |
+
+For Step 7 I committed each sub-step locally as soon as it worked, but did not push until I said "push". That is the habit from the Step 3 and 4 hiccup: commit as soon as something works, so steps never get tangled, and still keep control over when code goes to GitHub.
 
 ## A custom push skill
 

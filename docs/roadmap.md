@@ -64,11 +64,11 @@ Check that the clock stays visible over a full-screen Chrome window and a full-s
 Add the countdown timer and the stopwatch, then a way to switch between clock, timer, and stopwatch.
 **Test:** each mode works, and start/pause/reset behave.
 
-### Step 6: Click-through and hotkeys
+### Step 6: Click-through and hotkeys (postponed)
 Make the window click-through so it never blocks what is underneath. Add a global hotkey that turns click-through off (so I can drag or resize the clock) and back on. Add hotkeys for mode switching and start/pause.
 **Test:** clicks pass through the clock, and the hotkey lets me move it.
 
-### Step 7: Resize and opacity
+### Step 7: Resize and opacity (done)
 Make it resizable from fingernail-sized up to roughly a four-inch square, with adjustable opacity.
 **Test:** extremes of size and opacity look right and stay readable.
 

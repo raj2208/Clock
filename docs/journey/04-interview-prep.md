@@ -1,6 +1,6 @@
 # 04: Interview prep
 
-The project told as a story, followed by likely questions and answers. Everything here is based on what actually happened in steps 1 to 5. Update it as the project grows.
+The project told as a story, followed by likely questions and answers. Everything here is based on what actually happened in steps 1 to 5 and step 7 (step 6 is postponed). Update it as the project grows.
 
 ## The 30-second pitch
 
@@ -13,7 +13,7 @@ The project told as a story, followed by likely questions and answers. Everythin
 3. **Decision:** Electron, because I already know web technologies and it exposes all the window controls I need. The fallback was native Swift.
 4. **Process:** ten small steps, tested one at a time, committed after each. The riskiest one (full-screen overlay) came early.
 5. **Challenges:** a silent install failure, an environment variable that made Electron run as plain Node, and macOS Spaces blocking the window from full-screen apps.
-6. **Result:** a corner clock that stays on top of everything, including full-screen apps, with a clock, a countdown timer, and a stopwatch (start, pause, reset, and mode switching). Click-through, hotkeys, resizing, and a settings window are next.
+6. **Result:** a corner clock that stays on top of everything, including full-screen apps, with a clock, a countdown timer, and a stopwatch (start, pause, reset, and mode switching). It can be resized from fingernail-size to about four inches, with adjustable opacity. Click-through, hotkeys, and a settings window are next.
 
 ## Likely questions
 
@@ -104,15 +104,44 @@ Both overwrite remote history. `--force-with-lease` first checks that the remote
 - Check that an install actually produced what it should, instead of trusting a fast "Done".
 - Write the interview and journey notes as I go, not afterwards.
 
+### How does the whole clock scale when the window is resized?
+
+I wrote every size in `rem` and set the root font size from the window width: `html { font-size: calc(100vw / 22); }`. When the window grows, the root font grows, and everything in `rem` (text, buttons, gaps, padding) grows by the same proportion. I also locked the window to a 2:1 shape with `setAspectRatio`, so the height always follows the width and the content always fits. I checked the layout at 66, 220, and 490 px wide in all three modes.
+
+### How does the page talk to the main process?
+
+Through IPC. The page calls `window.clockApp.setOpacity(...)`. A preload script exposes that one function with `contextBridge.exposeInMainWorld`, and it forwards the call with `ipcRenderer.invoke`. In `main.js`, `ipcMain.handle` receives it and changes the window. The page cannot call anything else.
+
+### Why a preload script and `contextBridge` instead of giving the page Node access?
+
+Web content should not get full Node access. If untrusted code ever ran in the page, it could use the computer. Context isolation keeps the page separate from Electron's internals, and the preload script (which runs first, with limited access) hands the page only the functions I choose. I checked it from inside the page: `require` is undefined, and the raw `ipcRenderer` is not reachable.
+
+### What do you do with data that arrives over IPC?
+
+I do not trust it, even though it comes from my own page. The handler ignores anything that is not a real number, and clamps numbers to 0.1 to 1, so the window cannot be made invisible. I tested with strings, `NaN`, `null`, `undefined`, an object, and out-of-range numbers.
+
+### Why use `setOpacity` instead of CSS `opacity`?
+
+The window itself is not transparent. Its background is a solid rectangle, so CSS opacity would only fade the content against that background, and the desktop would not show through. `win.setOpacity()` changes the whole window, and only the main process can call it, which is why IPC is needed.
+
+### How did you check what the UI looked like if you could not see the screen?
+
+Early on, `screencapture` returned only the wallpaper, because macOS blocks capturing other apps' windows without Screen Recording permission. Later I used `webContents.capturePage()`, which asks the page for its own pixels, needing no permission. I saved the render to a PNG and looked at it. That caught a problem a numeric check had passed: the new opacity button was taller than its neighbours, and the row had only 5px to spare. I fixed it with a fixed button height.
+
+### Why did you skip Step 6 and do Step 7 first?
+
+Resizing and opacity did not depend on click-through or hotkeys, so the order was a free choice. I will come back to Step 6.
+
 ### What is next, and what is hard about it?
 
-Step 6 is click-through and hotkeys. Click-through conflicts with two things I have already built. If the window ignores mouse events, I cannot drag it, and I cannot press its buttons either (mode, start, pause, reset). My plan is a hotkey that toggles click-through off so I can move it and use the buttons, then on again, plus hotkeys for start/pause and switching modes so I rarely need to turn click-through off.
+Step 6 (click-through and hotkeys) is postponed on purpose. Click-through conflicts with things I have already built. If the window ignores mouse events, I cannot drag it, I cannot drag its edges to resize it, and I cannot press its buttons (mode, start, pause, reset, opacity). My plan is a hotkey that toggles click-through off so I can move it and use the buttons, then on again, plus hotkeys for start/pause and switching modes so I rarely need to turn click-through off.
 
 ## Things I should be honest about
 
 - I used an AI assistant to guide me and write code step by step. I tested each step myself and can explain every file.
 - The cause of the `NSWindow does not support nonactivating panel styleMask 0x80` warning is my understanding (Electron applies the non-activating flag and macOS complains), and I did not dig into Electron's source to confirm it. It is harmless in practice.
 - The full-screen behaviour was verified by hand, not by an automated test.
+- For Step 7, I tested the size limits and the opacity cycle from code, and looked at rendered images. I had not yet grabbed the window edge with a real mouse. Size and opacity are not remembered between launches, and I made the largest size four inches wide, which is two inches tall, because of the 2:1 shape.
 - For Step 5, I tested the timer and stopwatch logic and the layout sizes with scripts that clicked the buttons in code and faked the time. I had not yet checked how it looks, or clicked the buttons with a real mouse while another app was in front.
 
 ## Quick facts
@@ -124,6 +153,7 @@ Step 6 is click-through and hotkeys. Click-through conflicts with two things I h
 | Package manager | pnpm |
 | Electron binary download | about 121 MB |
 | `node_modules` size | about 272 MB |
-| Window size | 220 × 110 |
+| Window size | 220 × 110 by default; 66 × 33 to 490 × 245 when resized (always 2:1) |
+| Opacity levels | 100%, 80%, 60%, 40%, 20% (the main process never goes below 10%) |
 | Refresh loop | every 100 ms |
 | Timer range | 1 to 99 minutes, default 25 |
