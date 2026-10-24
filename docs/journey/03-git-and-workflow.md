@@ -21,6 +21,7 @@ Commit history so far:
 | add live ticking time to the window | Step 2 |
 | make the clock a frameless always on top corner window | Step 3 |
 | show the clock over full screen apps | Step 4 |
+| add journey docs explaining the build and hiccups | The docs in this folder |
 
 ## A custom push skill
 
@@ -33,6 +34,15 @@ I wanted one consistent way to commit and push, so I copied a skill from my Terr
 5. `git push origin main`.
 
 The skill lives in `.agents/skills/clock-git-push/SKILL.md` with a symlink at `.claude/skills/clock-git-push`. Both folders are in `.gitignore`, so the skill stays on my machine and is not published.
+
+## A second skill: documenting as I go
+
+Writing the journey docs at the end would mean forgetting the details, so I made a second skill, `clock-journey-docs`. After each finished step, solved bug, or changed decision, it updates `docs/journey/` and pushes the docs to GitHub.
+
+- **Standing permission:** I told it to push these documentation updates without asking me each time. Code pushes still wait for me to say "push".
+- **Docs only:** it stages `docs/` only (`git add docs/`), not everything. If it used `git add .` like `clock-git-push`, a docs commit could sweep up code changes I had not approved yet.
+- **Honest by design:** it must only record what actually happened and say what was not verified.
+- **Local only:** like the push skill, it lives in `.agents/skills/` and is gitignored.
 
 ## Hiccups
 
