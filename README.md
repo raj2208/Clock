@@ -1,5 +1,5 @@
-# Clock
+# Time Tracker
 
-A simple clock project.
+An always-on-top clock, timer, and stopwatch for macOS, to help me stay focused.
 
 Built by **Raj Kumar Rai**.

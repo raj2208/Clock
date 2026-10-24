@@ -2,14 +2,14 @@ const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const path = require("path");
 const { createSettingsStore, FONT_OPTIONS, LIMITS } = require("./settings");
 
-// The clock is always twice as wide as it is tall.
+// The window is always twice as wide as it is tall.
 const ASPECT_RATIO = 2;
-// Gap between the clock and the screen edges.
+// Gap between the window and the screen edges.
 const MARGIN = 16;
 const CORNERS = ["top-left", "top-right", "bottom-left", "bottom-right"];
 
 let store;
-let clockWindow = null;
+let mainWindow = null;
 let settingsWindow = null;
 
 const heightFor = (width) => Math.round(width / ASPECT_RATIO);
@@ -24,7 +24,7 @@ function isOnSomeScreen(rect) {
 }
 
 // Where a window of this size sits in one corner of a screen's work area.
-// workArea is the screen minus the menu bar and Dock, so the clock never hides under them.
+// workArea is the screen minus the menu bar and Dock, so the window never hides under them.
 function cornerPosition(corner, area, width, height) {
   const left = corner.endsWith("left");
   const top = corner.startsWith("top");
@@ -62,7 +62,7 @@ function broadcastSettings() {
   }
 }
 
-function createClockWindow() {
+function createMainWindow() {
   const bounds = startingBounds();
 
   const win = new BrowserWindow({
@@ -86,7 +86,7 @@ function createClockWindow() {
     },
   });
 
-  // Keep the clock's shape while resizing, so everything inside scales evenly.
+  // Keep the window's shape while resizing, so everything inside scales evenly.
   win.setAspectRatio(ASPECT_RATIO);
   win.setOpacity(store.get().opacity);
 
@@ -95,7 +95,7 @@ function createClockWindow() {
   // "screen-saver" is one of the highest window levels, above ordinary floating windows.
   win.setAlwaysOnTop(true, "screen-saver");
 
-  // Remember where the clock was left and how big it is.
+  // Remember where the window was left and how big it is.
   const rememberBounds = () => {
     const { x, y, width } = win.getBounds();
     store.update({ x, y, width });
@@ -105,7 +105,7 @@ function createClockWindow() {
   win.on("resized", rememberBounds);
 
   win.loadFile("index.html");
-  clockWindow = win;
+  mainWindow = win;
 }
 
 function openSettingsWindow() {
@@ -119,7 +119,7 @@ function openSettingsWindow() {
   settingsWindow = new BrowserWindow({
     width: 380,
     height: 700,
-    title: "Clock settings",
+    title: "Time Tracker settings",
     show: false,
     resizable: false,
     minimizable: false,
@@ -129,14 +129,14 @@ function openSettingsWindow() {
     },
   });
 
-  // Stay above ordinary windows and follow into full-screen Spaces, like the clock does,
+  // Stay above ordinary windows and follow into full-screen Spaces, like the main window does,
   // so it is never hidden behind the app that I opened it from.
   settingsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   settingsWindow.setAlwaysOnTop(true, "floating");
 
   settingsWindow.loadFile("settings.html");
   settingsWindow.once("ready-to-show", () => {
-    // The clock hides the Dock icon, so the app is not "active" until I ask for it.
+    // The app hides the Dock icon, so the app is not "active" until I ask for it.
     app.focus({ steal: true });
     settingsWindow.show();
   });
@@ -152,13 +152,13 @@ ipcMain.handle("settings:get", () => ({ settings: store.get(), fonts: FONT_OPTIO
 ipcMain.handle("settings:update", (event, partial) => {
   const before = store.get();
   const after = store.update(partial);
-  if (clockWindow) {
-    if (after.opacity !== before.opacity) clockWindow.setOpacity(after.opacity);
+  if (mainWindow) {
+    if (after.opacity !== before.opacity) mainWindow.setOpacity(after.opacity);
     if (after.width !== before.width) {
       // Resize from the top-left corner, then nudge back on screen if it now sticks out.
-      const { x, y } = clockWindow.getBounds();
+      const { x, y } = mainWindow.getBounds();
       const fitted = fitInsideScreen({ x, y, width: after.width, height: heightFor(after.width) });
-      clockWindow.setBounds(fitted);
+      mainWindow.setBounds(fitted);
       store.update({ x: fitted.x, y: fitted.y });
     }
   }
@@ -168,11 +168,11 @@ ipcMain.handle("settings:update", (event, partial) => {
 
 ipcMain.handle("settings:reset", () => {
   store.reset();
-  if (clockWindow) {
-    clockWindow.setOpacity(store.get().opacity);
+  if (mainWindow) {
+    mainWindow.setOpacity(store.get().opacity);
     // Back to the default size, in the top-right corner of the main screen.
     const bounds = startingBounds();
-    clockWindow.setBounds(bounds);
+    mainWindow.setBounds(bounds);
     store.update({ x: bounds.x, y: bounds.y });
   }
   broadcastSettings();
@@ -181,11 +181,11 @@ ipcMain.handle("settings:reset", () => {
 
 ipcMain.handle("window:place", (event, corner) => {
   // Only the four known corners are accepted.
-  if (!clockWindow || !CORNERS.includes(corner)) return;
-  const bounds = clockWindow.getBounds();
+  if (!mainWindow || !CORNERS.includes(corner)) return;
+  const bounds = mainWindow.getBounds();
   const area = screen.getDisplayMatching(bounds).workArea;
   const { x, y } = cornerPosition(corner, area, bounds.width, bounds.height);
-  clockWindow.setPosition(x, y);
+  mainWindow.setPosition(x, y);
   store.update({ x, y });
   broadcastSettings();
 });
@@ -198,20 +198,20 @@ app.whenReady().then(() => {
   // Hide the Dock icon: macOS only lets "background" apps draw over full-screen apps.
   app.dock.hide();
 
-  createClockWindow();
+  createMainWindow();
 
   // On macOS, clicking the Dock icon with no windows open should open one again.
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createClockWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
 });
 
-// Make sure the last change is saved before quitting. Saving the clock's position here
+// Make sure the last change is saved before quitting. Saving the window's position here
 // too is a safety net, in case a drag ended without a "moved" event.
 app.on("before-quit", () => {
   if (!store) return;
-  if (clockWindow && !clockWindow.isDestroyed()) {
-    const { x, y, width } = clockWindow.getBounds();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    const { x, y, width } = mainWindow.getBounds();
     store.update({ x, y, width });
   }
   store.flush();

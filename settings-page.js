@@ -23,9 +23,9 @@ function showSettings(settings) {
 }
 
 // Each control sends its change to the main process, which checks it, applies it to the
-// clock, and saves it. The main process then sends the settings back (see the bottom).
+// main window, and saves it. The main process then sends the settings back (see the bottom).
 function send(partial) {
-  window.clockApp.updateSettings(partial);
+  window.timeTrackerApp.updateSettings(partial);
 }
 
 opacitySlider.addEventListener("input", () => send({ opacity: Number(opacitySlider.value) / 100 }));
@@ -39,19 +39,19 @@ timerMinutes.addEventListener("input", () => {
   if (timerMinutes.value !== "") send({ timerMinutes: Number(timerMinutes.value) });
 });
 // When I leave the box, show the real saved value (for example 99 if I typed 500).
-timerMinutes.addEventListener("blur", () => window.clockApp.getSettings().then(({ settings }) => showSettings(settings)));
+timerMinutes.addEventListener("blur", () => window.timeTrackerApp.getSettings().then(({ settings }) => showSettings(settings)));
 
 for (const button of document.querySelectorAll("[data-corner]")) {
-  button.addEventListener("click", () => window.clockApp.placeWindow(button.dataset.corner));
+  button.addEventListener("click", () => window.timeTrackerApp.placeWindow(button.dataset.corner));
 }
 
 document.getElementById("reset").addEventListener("click", () => {
   if (confirm("Reset the size, position, colors, font, and everything else to the defaults?")) {
-    window.clockApp.resetSettings();
+    window.timeTrackerApp.resetSettings();
   }
 });
 
-window.clockApp.getSettings().then(({ settings, fonts }) => {
+window.timeTrackerApp.getSettings().then(({ settings, fonts }) => {
   // The list of fonts comes from the main process, so it is defined in one place only.
   for (const font of fonts) {
     const option = document.createElement("option");
@@ -61,5 +61,5 @@ window.clockApp.getSettings().then(({ settings, fonts }) => {
   }
   showSettings(settings);
 });
-// Also fires when I change the clock itself, for example by dragging its edge.
-window.clockApp.onSettingsChanged(showSettings);
+// Also fires when I change the main window itself, for example by dragging its edge.
+window.timeTrackerApp.onSettingsChanged(showSettings);

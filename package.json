@@ -1,5 +1,6 @@
 {
-  "name": "clock",
+  "name": "time-tracker",
+  "productName": "Time Tracker",
   "version": "0.1.0",
   "description": "An always-on-top clock, timer, and stopwatch to help me stay focused.",
   "main": "main.js",

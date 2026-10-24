@@ -217,7 +217,7 @@ setMode(currentMode);
 
 // ---- Opacity ----
 
-// Each click makes the clock a bit more see-through, then it wraps back to solid.
+// Each click makes the window a bit more see-through, then it wraps back to solid.
 const OPACITY_LEVELS = [1, 0.8, 0.6, 0.4, 0.2];
 let currentOpacity = 1;
 
@@ -235,13 +235,13 @@ function showOpacity(opacity) {
   opacityButton.title = `Opacity: ${Math.round(opacity * 100)}%. Click for ${next === 1 ? "solid" : "less"}.`;
 }
 
-// clockApp comes from preload.js. The window itself is changed in main.js,
+// timeTrackerApp comes from preload.js. The window itself is changed in main.js,
 // which also saves the setting so it is remembered next time.
 opacityButton.addEventListener("click", () => {
-  window.clockApp.updateSettings({ opacity: nextOpacity(currentOpacity) });
+  window.timeTrackerApp.updateSettings({ opacity: nextOpacity(currentOpacity) });
 });
 
-document.getElementById("settings-button").addEventListener("click", () => window.clockApp.openSettings());
+document.getElementById("settings-button").addEventListener("click", () => window.timeTrackerApp.openSettings());
 
 // ---- Settings ----
 
@@ -265,7 +265,7 @@ function applySettings(settings) {
   renderClock();
 
   // The timer length changes only when I actually change that setting. This function also
-  // runs when I just move or resize the clock, which must not undo the + and - buttons.
+  // runs when I just move or resize the window, which must not undo the + and - buttons.
   if (settings.timerMinutes !== lastTimerMinutes) {
     lastTimerMinutes = settings.timerMinutes;
     if (!timerIsRunning() && !timerIsPaused()) {
@@ -276,11 +276,11 @@ function applySettings(settings) {
   }
 }
 
-window.clockApp.getSettings().then(({ settings, fonts }) => {
+window.timeTrackerApp.getSettings().then(({ settings, fonts }) => {
   fontStacks = Object.fromEntries(fonts.map((font) => [font.key, font.stack]));
   applySettings(settings);
 });
-window.clockApp.onSettingsChanged(applySettings);
+window.timeTrackerApp.onSettingsChanged(applySettings);
 
 // ---- Main loop ----
 

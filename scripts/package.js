@@ -1,4 +1,4 @@
-// Packages the clock into a real Mac app: out/Clock-darwin-arm64/Clock.app
+// Packages Time Tracker into a real Mac app: out/Time Tracker-darwin-arm64/Time Tracker.app
 // Run it with: pnpm package
 const { execFileSync } = require("child_process");
 const { packager } = require("@electron/packager");
@@ -48,7 +48,7 @@ async function main() {
   const outputPaths = await packager({
     dir: ".",
     out: "out",
-    name: "Clock",
+    name: "Time Tracker",
     // Apple Silicon Macs only, for now.
     platform: "darwin",
     arch: "arm64",
@@ -61,7 +61,7 @@ async function main() {
     prune: false,
     // Made by "pnpm icon". The packager adds the ".icns" itself.
     icon: "assets/icon",
-    appBundleId: "com.raj2208.clock",
+    appBundleId: "com.raj2208.timetracker",
     appVersion: version,
     appCopyright: `Copyright © 2026 ${author}`,
     ignore: LEFT_OUT,
@@ -69,7 +69,7 @@ async function main() {
 
   console.log("Built:");
   for (const outputPath of outputPaths) {
-    const appPath = `${outputPath}/Clock.app`;
+    const appPath = `${outputPath}/Time Tracker.app`;
     signAdHoc(appPath);
     console.log(`  ${appPath} (signed ad-hoc)`);
   }

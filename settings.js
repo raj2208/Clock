@@ -26,7 +26,7 @@ const FONT_OPTIONS = [
 const DEFAULTS = {
   width: 220,
   opacity: 1,
-  // null means "not placed yet", so the clock starts in the top-right corner.
+  // null means "not placed yet", so the window starts in the top-right corner.
   x: null,
   y: null,
   backgroundColor: "#111111",

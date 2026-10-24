@@ -46,9 +46,9 @@ async function main() {
     throw new Error(`Transparency is wrong (corner alpha ${alphaAt(2, 2)}, middle alpha ${alphaAt(512, 200)})`);
   }
 
-  const work = fs.mkdtempSync(path.join(os.tmpdir(), "clock-icon-"));
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), "time-tracker-icon-"));
   const bigPath = path.join(work, "big.png");
-  const iconset = path.join(work, "Clock.iconset");
+  const iconset = path.join(work, "TimeTracker.iconset");
   fs.mkdirSync(iconset);
   fs.writeFileSync(bigPath, big.toPNG());
 

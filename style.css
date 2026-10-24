@@ -1,6 +1,6 @@
 /*
   Everything is sized in rem, and 1rem is 1/22 of the window width. So when the window
-  is resized, the whole clock scales together: at the default 220px width, 1rem is 10px.
+  is resized, the whole window scales together: at the default 220px width, 1rem is 10px.
 */
 html {
   font-size: calc(100vw / 22);
@@ -19,7 +19,7 @@ body {
   background: var(--background, #111111);
   color: var(--text, #ffffff);
   font-family: var(--font, -apple-system, BlinkMacSystemFont, sans-serif);
-  /* With no title bar, this lets me drag the clock around by clicking it. */
+  /* With no title bar, this lets me drag the window around by clicking it. */
   -webkit-app-region: drag;
 }
 
