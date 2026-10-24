@@ -1,7 +1,7 @@
 const { app, BrowserWindow, screen } = require("electron");
 
 const WIDTH = 220;
-const HEIGHT = 80;
+const HEIGHT = 120;
 // Gap between the clock and the screen edges.
 const MARGIN = 16;
 
@@ -22,6 +22,8 @@ function createWindow() {
     type: "panel",
     // Resizing comes later (Step 7).
     resizable: false,
+    // Let the very first click on a button work, even while another app is in front.
+    acceptFirstMouse: true,
   });
 
   // Appear in every Space, including the Space of a full-screen app.
