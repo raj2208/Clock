@@ -7,10 +7,12 @@ body {
   background: #111;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  /* With no title bar, this lets me drag the clock around by clicking it. */
+  -webkit-app-region: drag;
 }
 
 #time {
-  font-size: 64px;
+  font-size: 40px;
   /* Every digit gets the same width, so the clock doesn't wobble as numbers change. */
   font-variant-numeric: tabular-nums;
 }
