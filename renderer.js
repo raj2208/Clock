@@ -28,9 +28,33 @@ function formatMinutesSeconds(ms) {
 
 // ---- Clock ----
 
+let use12Hour = false;
+let lastClockText = "";
+
 function renderClock() {
   const now = new Date();
-  timeElement.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const minutesAndSeconds = `${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  let text;
+  let suffix = "";
+  if (use12Hour) {
+    // 0 and 12 o'clock both show as 12.
+    text = `${now.getHours() % 12 || 12}:${minutesAndSeconds}`;
+    suffix = now.getHours() < 12 ? "AM" : "PM";
+  } else {
+    text = `${pad(now.getHours())}:${minutesAndSeconds}`;
+  }
+
+  // Only touch the page when the text really changes, not ten times a second.
+  if (text + suffix === lastClockText) return;
+  lastClockText = text + suffix;
+  timeElement.textContent = text;
+  if (suffix) {
+    const suffixElement = document.createElement("span");
+    suffixElement.className = "ampm";
+    suffixElement.textContent = suffix;
+    timeElement.append(suffixElement);
+  }
 }
 
 // ---- Countdown timer ----
@@ -219,8 +243,44 @@ opacityButton.addEventListener("click", () => {
 
 document.getElementById("settings-button").addEventListener("click", () => window.clockApp.openSettings());
 
-window.clockApp.getSettings().then(({ settings }) => showOpacity(settings.opacity));
-window.clockApp.onSettingsChanged((settings) => showOpacity(settings.opacity));
+// ---- Settings ----
+
+let fontStacks = {};
+let lastTimerMinutes = null;
+
+function applyAppearance(settings) {
+  const root = document.documentElement.style;
+  root.setProperty("--background", settings.backgroundColor);
+  root.setProperty("--text", settings.textColor);
+  // Only fonts from the list the main process sent can be used.
+  if (fontStacks[settings.font]) root.setProperty("--font", fontStacks[settings.font]);
+}
+
+function applySettings(settings) {
+  showOpacity(settings.opacity);
+  applyAppearance(settings);
+
+  use12Hour = settings.hour12;
+  timeElement.classList.toggle("twelve-hour", use12Hour);
+  renderClock();
+
+  // The timer length changes only when I actually change that setting. This function also
+  // runs when I just move or resize the clock, which must not undo the + and - buttons.
+  if (settings.timerMinutes !== lastTimerMinutes) {
+    lastTimerMinutes = settings.timerMinutes;
+    if (!timerIsRunning() && !timerIsPaused()) {
+      timer.durationMs = settings.timerMinutes * MINUTE;
+      timer.finished = false;
+      renderTimer();
+    }
+  }
+}
+
+window.clockApp.getSettings().then(({ settings, fonts }) => {
+  fontStacks = Object.fromEntries(fonts.map((font) => [font.key, font.stack]));
+  applySettings(settings);
+});
+window.clockApp.onSettingsChanged(applySettings);
 
 // ---- Main loop ----
 

@@ -11,12 +11,31 @@ const LIMITS = {
   minOpacity: 0.1,
 };
 
+// The fonts I can pick from. The settings file stores only the short `key`.
+// The page looks up the matching `stack` (the CSS font-family value) from this list,
+// so there is a single source of truth, and no arbitrary text ever becomes CSS.
+const FONT_OPTIONS = [
+  { key: "system", label: "System", stack: '-apple-system, BlinkMacSystemFont, sans-serif' },
+  { key: "helvetica", label: "Helvetica Neue", stack: '"Helvetica Neue", Helvetica, sans-serif' },
+  { key: "avenir", label: "Avenir Next", stack: '"Avenir Next", Avenir, sans-serif' },
+  { key: "futura", label: "Futura", stack: 'Futura, "Century Gothic", sans-serif' },
+  { key: "georgia", label: "Georgia (serif)", stack: 'Georgia, "Times New Roman", serif' },
+  { key: "mono", label: "Menlo (monospace)", stack: '"SF Mono", Menlo, monospace' },
+];
+
 const DEFAULTS = {
   width: 220,
   opacity: 1,
   // null means "not placed yet", so the clock starts in the top-right corner.
   x: null,
   y: null,
+  backgroundColor: "#111111",
+  textColor: "#ffffff",
+  font: "system",
+  // false shows 24-hour time (14:30), true shows 12-hour time with AM or PM.
+  hour12: false,
+  // How long the countdown timer starts at, in minutes.
+  timerMinutes: 25,
 };
 
 const clamp = (number, min, max) => Math.min(max, Math.max(min, number));
@@ -28,6 +47,12 @@ const VALIDATORS = {
   opacity: (v) => (Number.isFinite(v) ? clamp(v, LIMITS.minOpacity, 1) : undefined),
   x: (v) => (v === null ? null : Number.isFinite(v) ? Math.round(v) : undefined),
   y: (v) => (v === null ? null : Number.isFinite(v) ? Math.round(v) : undefined),
+  // Only a plain "#rrggbb" color is accepted, so nothing else can slip into the page's CSS.
+  backgroundColor: (v) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toLowerCase() : undefined),
+  textColor: (v) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toLowerCase() : undefined),
+  font: (v) => (FONT_OPTIONS.some((option) => option.key === v) ? v : undefined),
+  hour12: (v) => (typeof v === "boolean" ? v : undefined),
+  timerMinutes: (v) => (Number.isFinite(v) ? Math.round(clamp(v, 1, 99)) : undefined),
 };
 
 // Copies the usable values from `input` over `base`. Unknown keys and bad values are skipped.
@@ -90,4 +115,4 @@ function createSettingsStore(filePath) {
   };
 }
 
-module.exports = { createSettingsStore, DEFAULTS, LIMITS };
+module.exports = { createSettingsStore, DEFAULTS, FONT_OPTIONS, LIMITS };

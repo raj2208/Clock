@@ -14,9 +14,11 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.8rem;
-  background: #111;
-  color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  /* These three come from the settings (see applyAppearance in renderer.js). The values
+     after the commas are used until the settings have loaded. */
+  background: var(--background, #111111);
+  color: var(--text, #ffffff);
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, sans-serif);
   /* With no title bar, this lets me drag the clock around by clicking it. */
   -webkit-app-region: drag;
 }
@@ -43,11 +45,24 @@ body {
   gap: 0.5rem;
 }
 
-/* Buttons must opt out of dragging, or clicking them would just move the window. */
+/* 12-hour time is longer (it has AM or PM), so the digits are a little smaller. */
+.display.twelve-hour {
+  font-size: 3.3rem;
+}
+
+.ampm {
+  margin-left: 0.3rem;
+  font-size: 1.5rem;
+  opacity: 0.7;
+}
+
+/* Buttons must opt out of dragging, or clicking them would just move the window.
+   They are a see-through grey and use the text color, so they work with any
+   background color I choose. */
 button {
   -webkit-app-region: no-drag;
-  background: #2a2a2a;
-  color: #ddd;
+  background: rgba(128, 128, 128, 0.25);
+  color: inherit;
   border: none;
   border-radius: 0.4rem;
   /* A fixed height keeps every button the same size, whatever symbol is inside. */
@@ -76,7 +91,7 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background: #3a3a3a;
+  background: rgba(128, 128, 128, 0.45);
 }
 
 button:disabled {

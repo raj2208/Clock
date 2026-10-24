@@ -5,6 +5,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("clockApp", {
   getSettings: () => ipcRenderer.invoke("settings:get"),
   updateSettings: (partial) => ipcRenderer.invoke("settings:update", partial),
+  resetSettings: () => ipcRenderer.invoke("settings:reset"),
   // Calls `callback` with the new settings whenever they change.
   onSettingsChanged: (callback) => {
     ipcRenderer.on("settings:changed", (_event, settings) => callback(settings));

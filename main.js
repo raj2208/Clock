@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const path = require("path");
-const { createSettingsStore, LIMITS } = require("./settings");
+const { createSettingsStore, FONT_OPTIONS, LIMITS } = require("./settings");
 
 // The clock is always twice as wide as it is tall.
 const ASPECT_RATIO = 2;
@@ -118,7 +118,7 @@ function openSettingsWindow() {
 
   settingsWindow = new BrowserWindow({
     width: 380,
-    height: 440,
+    height: 700,
     title: "Clock settings",
     show: false,
     resizable: false,
@@ -147,7 +147,7 @@ function openSettingsWindow() {
 
 // ---- Messages from the pages ----
 
-ipcMain.handle("settings:get", () => ({ settings: store.get() }));
+ipcMain.handle("settings:get", () => ({ settings: store.get(), fonts: FONT_OPTIONS }));
 
 ipcMain.handle("settings:update", (event, partial) => {
   const before = store.get();
@@ -161,6 +161,19 @@ ipcMain.handle("settings:update", (event, partial) => {
       clockWindow.setBounds(fitted);
       store.update({ x: fitted.x, y: fitted.y });
     }
+  }
+  broadcastSettings();
+  return store.get();
+});
+
+ipcMain.handle("settings:reset", () => {
+  store.reset();
+  if (clockWindow) {
+    clockWindow.setOpacity(store.get().opacity);
+    // Back to the default size, in the top-right corner of the main screen.
+    const bounds = startingBounds();
+    clockWindow.setBounds(bounds);
+    store.update({ x: bounds.x, y: bounds.y });
   }
   broadcastSettings();
   return store.get();

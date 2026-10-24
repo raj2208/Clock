@@ -5,7 +5,7 @@
 
 body {
   margin: 0;
-  padding: 20px 24px;
+  padding: 16px 24px;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 14px;
 }
@@ -25,7 +25,7 @@ h2 {
 }
 
 section {
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 .slider-row {
@@ -51,6 +51,32 @@ output {
 }
 
 .corner-grid button {
+  padding: 8px;
+  font-size: 13px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+}
+
+input[type="color"] {
+  width: 48px;
+  height: 26px;
+  padding: 0;
+  cursor: pointer;
+}
+
+input[type="number"] {
+  width: 56px;
+  text-align: right;
+}
+
+.reset {
+  width: 100%;
   padding: 8px;
   font-size: 13px;
 }

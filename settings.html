@@ -30,6 +30,37 @@
     </section>
 
     <section>
+      <h2>Appearance</h2>
+      <label class="field">
+        <span>Background color</span>
+        <input id="backgroundColor" type="color" />
+      </label>
+      <label class="field">
+        <span>Text color</span>
+        <input id="textColor" type="color" />
+      </label>
+      <label class="field">
+        <span>Font</span>
+        <select id="font"></select>
+      </label>
+    </section>
+
+    <section>
+      <h2>Time</h2>
+      <label class="field">
+        <span>Use 12-hour time (AM/PM)</span>
+        <input id="hour12" type="checkbox" />
+      </label>
+      <label class="field">
+        <span>Countdown timer starts at</span>
+        <span class="minutes">
+          <input id="timerMinutes" type="number" min="1" max="99" step="1" />
+          min
+        </span>
+      </label>
+    </section>
+
+    <section>
       <h2>Position</h2>
       <div class="corner-grid">
         <button data-corner="top-left">Top left</button>
@@ -38,6 +69,10 @@
         <button data-corner="bottom-right">Bottom right</button>
       </div>
       <p class="hint">Or just drag the clock anywhere. It remembers where you left it.</p>
+    </section>
+
+    <section>
+      <button id="reset" class="reset">Reset everything to defaults</button>
     </section>
 
     <script src="settings-page.js"></script>
