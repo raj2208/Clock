@@ -2,9 +2,15 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'"
+    />
     <title>Clock</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h1>Hello</h1>
+    <div id="time">--:--:--</div>
+    <script src="renderer.js"></script>
   </body>
 </html>
