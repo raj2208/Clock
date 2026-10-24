@@ -17,16 +17,25 @@ function createWindow() {
     y: y + MARGIN,
     // No title bar or window buttons.
     frame: false,
-    // Stay above other windows, even when another app is in front.
-    alwaysOnTop: true,
+    // A "panel" is a lightweight macOS window (like Spotlight) that is allowed
+    // to appear over full-screen apps, and doesn't steal focus from them.
+    type: "panel",
     // Resizing comes later (Step 7).
     resizable: false,
   });
+
+  // Appear in every Space, including the Space of a full-screen app.
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  // "screen-saver" is one of the highest window levels, above ordinary floating windows.
+  win.setAlwaysOnTop(true, "screen-saver");
 
   win.loadFile("index.html");
 }
 
 app.whenReady().then(() => {
+  // Hide the Dock icon: macOS only lets "background" apps draw over full-screen apps.
+  app.dock.hide();
+
   createWindow();
 
   // On macOS, clicking the Dock icon with no windows open should open one again.
