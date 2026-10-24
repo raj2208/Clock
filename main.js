@@ -1,4 +1,5 @@
-const { app, BrowserWindow, screen } = require("electron");
+const { app, BrowserWindow, ipcMain, screen } = require("electron");
+const path = require("path");
 
 const WIDTH = 220;
 const HEIGHT = 110;
@@ -33,6 +34,10 @@ function createWindow() {
     maxHeight: MAX_WIDTH * (HEIGHT / WIDTH),
     // Let the very first click on a button work, even while another app is in front.
     acceptFirstMouse: true,
+    webPreferences: {
+      // Runs before the page loads and gives it a safe way to message this file.
+      preload: path.join(__dirname, "preload.js"),
+    },
   });
 
   // Keep the clock's shape (2:1) while resizing, so everything inside scales evenly.
@@ -45,6 +50,15 @@ function createWindow() {
 
   win.loadFile("index.html");
 }
+
+// The page asks for a new opacity; only this file can actually change the window.
+ipcMain.handle("set-opacity", (event, value) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  // Never trust a message blindly: ignore anything that is not a sensible number.
+  // The floor of 0.1 stops the clock from becoming completely invisible.
+  if (!win || typeof value !== "number" || Number.isNaN(value)) return;
+  win.setOpacity(Math.min(1, Math.max(0.1, value)));
+});
 
 app.whenReady().then(() => {
   // Hide the Dock icon: macOS only lets "background" apps draw over full-screen apps.

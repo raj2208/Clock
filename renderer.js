@@ -191,6 +191,23 @@ function nextMode() {
 modeButton.addEventListener("click", nextMode);
 setMode(currentMode);
 
+// ---- Opacity ----
+
+// Each click makes the clock a bit more see-through, then it wraps back to solid.
+const OPACITY_LEVELS = [1, 0.8, 0.6, 0.4, 0.2];
+let opacityIndex = 0;
+
+const opacityButton = document.getElementById("opacity-button");
+
+opacityButton.addEventListener("click", () => {
+  opacityIndex = (opacityIndex + 1) % OPACITY_LEVELS.length;
+  const opacity = OPACITY_LEVELS[opacityIndex];
+  const percent = Math.round(opacity * 100);
+  opacityButton.title = `Opacity: ${percent}%. Click for ${opacityIndex === OPACITY_LEVELS.length - 1 ? "solid" : "less"}.`;
+  // clockApp comes from preload.js. The window itself is changed in main.js.
+  window.clockApp.setOpacity(opacity);
+});
+
 // ---- Main loop ----
 
 function render() {

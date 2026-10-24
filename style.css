@@ -35,12 +35,12 @@ body {
 .row {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 
 .controls {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
 /* Buttons must opt out of dragging, or clicking them would just move the window. */
@@ -50,8 +50,11 @@ button {
   color: #ddd;
   border: none;
   border-radius: 0.4rem;
-  padding: 0.2rem 0.8rem;
+  /* A fixed height keeps every button the same size, whatever symbol is inside. */
+  height: 2.2rem;
+  padding: 0 0.7rem;
   font-size: 1.3rem;
+  line-height: 1;
   cursor: pointer;
 }
 
