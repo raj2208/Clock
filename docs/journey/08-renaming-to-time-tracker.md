@@ -19,7 +19,7 @@ The clock, timer, and stopwatch are still the app's three modes. Only the *proje
 | Main window variable | `clockWindow` | `mainWindow` |
 | Settings folder | `~/Library/Application Support/clock/` | `~/Library/Application Support/Time Tracker/` |
 | Local skills | `clock-git-push`, `clock-journey-docs` | `time-tracker-git-push`, `time-tracker-journey-docs` |
-| GitHub repo | `raj2208/Clock` | `raj2208/Time-Tracker` (renamed by hand, see below) |
+| GitHub repo | `raj2208/Clock` | `raj2208/Time-Tracker` (renamed with the GitHub CLI, see below) |
 | Homebrew (planned) | `homebrew-clock`, cask `clock` | `homebrew-time-tracker`, cask `time-tracker` |
 | README and docs | "Clock" | "Time Tracker" |
 
@@ -39,15 +39,18 @@ Electron builds the app's name (and the folder where it saves settings) from `pr
 
 ## Hiccups and decisions
 
-### I could not rename the GitHub repository myself
+### I could not rename the GitHub repository at first
 
-The `gh` tool (GitHub's command line) is not installed here. I could have taken the saved GitHub password out of the macOS keychain and called GitHub's web interface directly, but I did not, because that is using a credential for something beyond what I was asked to do. Renaming takes about ten seconds in the browser, so I left it to the human step:
+The `gh` tool (GitHub's command line) was not installed. I could have taken the saved GitHub password out of the macOS keychain and called GitHub's web interface directly, but I did not, because that is using a credential for something beyond what I was asked to do. Instead I suggested renaming it in the browser by hand.
 
-1. Open the repo on GitHub, then **Settings**.
-2. Under **Repository name**, type `Time-Tracker` and click **Rename**.
-3. Then, on this computer: `git remote set-url origin https://github.com/raj2208/Time-Tracker.git`
+The better answer was to give the assistant a proper, limited login. So I **installed the GitHub CLI** and logged in (see [`03-git-and-workflow.md`](03-git-and-workflow.md)). With that, the rename was one command:
 
-GitHub redirects the old address to the new one, so pushing keeps working in the meantime.
+```bash
+gh repo rename Time-Tracker --repo raj2208/Clock --yes
+git remote set-url origin https://github.com/raj2208/Time-Tracker.git
+```
+
+I confirmed on GitHub that the repo is now `raj2208/Time-Tracker` (public, default branch `main`), and that the remote points at the new address. GitHub also redirects the old address to the new one.
 
 ### I did not rename the local folder
 
@@ -86,5 +89,5 @@ I have **not** launched the renamed app. That is for me to do.
 1. **Separate the product's name from a feature's name.** The "Clock" mode is a feature, so the rename must not touch it.
 2. **A name appears in more places than you think:** window titles, bundle ID, settings folder, file names, skills, docs, and the remote repository.
 3. **Find the names, then read what is left.** A search for exact names catches most places. Reading the remaining mentions catches the rest.
-4. **Know which steps are yours.** Some steps belong to the person, not the assistant: renaming the repo on GitHub, and renaming the folder that is currently open.
+4. **Know which steps are yours.** Some steps belong to the person, not the assistant: renaming the folder that is currently open. For the others, give the assistant a proper, limited login (the GitHub CLI) instead of working around the missing one.
 5. **Keep technical names friendly to links and commands.** Use hyphens in file names that become download links.

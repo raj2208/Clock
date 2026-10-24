@@ -79,16 +79,16 @@ A separate window to customize everything: size, opacity, colors, fonts, positio
 ### Step 9: Polish
 Colors, fonts, an alert (sound or color change) when the countdown reaches zero, and other UI details.
 
-### Step 10: Package as a real app (in progress)
+### Step 10: Package as a real app (built; I still need to open it by hand)
 Bundle into `Time Tracker.app`, add it to Applications, and optionally launch at login. Built as sub-steps:
-- **10a:** package the app into `Time Tracker.app` with one command (`pnpm package`).
-- **10b:** give it a proper icon.
-- **10c:** make a zip of the app, with its checksum, ready to publish.
+- **10a (done):** package the app into `Time Tracker.app` with one command (`pnpm package`).
+- **10b (done):** give it a proper icon (`pnpm icon`).
+- **10c (done):** make a zip of the app, with its checksum, ready to publish (`pnpm dist` does it all).
 
 **Test:** open the app without the terminal.
 
 ### Step 11: Publish a GitHub Release
-Upload the zipped `Time Tracker.app` to a GitHub Release (for example `v0.1.0`) on the Time Tracker repo, so it has a stable download link.
+Upload the zipped `Time Tracker.app` to a GitHub Release (for example `v0.1.0`) on the Time Tracker repo, so it has a stable download link. The GitHub CLI is installed, so this is one command (`gh release create`).
 **Test:** the link downloads the zip, and the checksum matches.
 
 ### Step 12: Install with Homebrew

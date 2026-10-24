@@ -21,7 +21,10 @@ A small always-on-top clock for macOS that floats in the top-right corner and st
 | 7 | Resize and opacity | Done (tested by script and rendered image; I still need to try edge-dragging by hand) |
 | 8 | Settings window (colors, font, time format, timer length, saved settings) | Done (tested by script and rendered images; I still need to try it by hand) |
 | 9 | Polish | Next |
-| 10 | Package as a real `Time Tracker.app` | Planned |
+| 10 | Package as a real `Time Tracker.app` (icon, zip, checksum) | Built and tested by script; I still need to open it by hand |
+| 11 | Publish a GitHub Release | Planned |
+| 12 | Install with Homebrew | Planned |
+| 13 | Apple signing (optional) | Planned |
 
 The full plan is in [`../roadmap.md`](../roadmap.md).
 
@@ -32,9 +35,10 @@ The full plan is in [`../roadmap.md`](../roadmap.md).
 3. [`05-step-5-timer-stopwatch-modes.md`](05-step-5-timer-stopwatch-modes.md): the countdown, stopwatch, mode switching, and start/pause/reset, built as four sub-steps.
 4. [`06-step-7-resize-and-opacity.md`](06-step-7-resize-and-opacity.md): resizing with scaling content, and opacity through a safe preload bridge (my first IPC).
 5. [`07-step-8-settings-window.md`](07-step-8-settings-window.md): saved settings, the settings window, appearance options, and the validation behind them.
-6. [`08-renaming-to-time-tracker.md`](08-renaming-to-time-tracker.md): why "Clock" became "Time Tracker", everything the rename touched, and what only I can do by hand.
-7. [`03-git-and-workflow.md`](03-git-and-workflow.md): the GitHub workflow, the custom skills, and the git hiccups.
-8. [`04-interview-prep.md`](04-interview-prep.md): the story in interview form, with likely questions and answers.
+6. [`09-step-10-packaging.md`](09-step-10-packaging.md): the packaged app, the icon, the zip, and the signing problems.
+7. [`08-renaming-to-time-tracker.md`](08-renaming-to-time-tracker.md): why "Clock" became "Time Tracker", everything the rename touched, and what only I can do by hand.
+8. [`03-git-and-workflow.md`](03-git-and-workflow.md): the GitHub workflow, the custom skills, and the git hiccups.
+9. [`04-interview-prep.md`](04-interview-prep.md): the story in interview form, with likely questions and answers.
 
 ## Related docs
 

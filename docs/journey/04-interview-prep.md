@@ -164,6 +164,38 @@ My test moved the window with `setBounds()`, which does not fire "moved" or "res
 
 The app hides its Dock icon so it can sit over full-screen apps, which means macOS does not treat it as the active app. Without that call, the settings window could appear but not take focus.
 
+### What is inside your packaged app?
+
+Two things: my code and Electron. My code is 10 files in a single archive (`app.asar`), 36 KB. Electron, the Chromium-based engine, is about 251 MB, so the whole app is 253 MB and the zip is 114 MB. Every Electron app carries its own engine, which is the memory and size trade-off I accepted when I chose Electron.
+
+### Describe a problem you hit while packaging.
+
+After renaming the app, its code signature no longer matched, and `codesign --verify` failed. I re-signed it with an ad-hoc signature using the packager's own signing option. The signature then verified, but the app would not start: `Library not loaded ... different Team IDs`. The packager had turned on the hardened runtime, which only allows loading code from the same Apple Team ID, and an ad-hoc signature has none. My option to turn it off was ignored, so I ran macOS's own `codesign --force --deep --sign -` after packaging instead. The lesson: a signature that verifies is not the same as an app that runs, so always launch the real artifact.
+
+### How did you test the packaged app?
+
+The dev trick of attaching a script with `-r` is ignored in a packaged app. So I started the app with Chrome's remote debugging port and drove its windows through it: one window at startup, the page loaded from inside `app.asar`, the preload bridge works, the page has no Node access, and the settings window opens and changes the clock. I also unzipped the zip into a fresh folder, checked that it was identical to the built app, and ran the same checks from there.
+
+### Why `ditto` and not `zip`?
+
+A plain `zip` can break the symbolic links inside Electron's frameworks, which leaves an app that will not open. `ditto` is the macOS tool that preserves them. I checked that the unzipped copy still had its four framework links and was identical to the original.
+
+### Why does macOS reject your app, and how would you fix it?
+
+The app has an ad-hoc signature, which is free but not from an Apple Developer account. `spctl --assess` says "rejected", and other people's Macs show a warning and make them right-click and choose Open. To fix it I would sign with an Apple Developer ID, turn the hardened runtime on, and notarize the app (about $99 a year). I put that in the roadmap as an optional step, because it only matters if other people will use the app.
+
+### Why did pnpm cause a packaging error?
+
+The packager looks for its dependencies nested in its own folder, but pnpm keeps packages in a separate store and links them in. The packager crashed with `Failed to locate module`. Since my app has no runtime dependencies, I left `node_modules` out of the app and turned off the dependency pruning step. If I add a real dependency later, I need `nodeLinker: hoisted` in pnpm's settings. A comment in the script says so.
+
+### How did you make the app icon?
+
+I drew it as an SVG, then a script has Electron render it to a 1024 px PNG (a browser can draw SVG), and the macOS tools `sips` (makes each size) and `iconutil` (bundles them) produce the `.icns`. The script checks that the corners are transparent. I confirmed that the icon inside the packaged app is byte-for-byte my file.
+
+### Why did you install the GitHub CLI?
+
+Renaming a repository is a GitHub action, not a git one. Installing `gh` and logging in through GitHub's device flow gave a proper, limited login (a token in the macOS keychain with `repo`, `read:org`, and `gist` scopes) instead of working around the missing tool. I backed up `~/.gitconfig` before logging in and compared afterwards, because logging in can change how `git push` signs in. It had not changed. It also makes the next steps easier: creating a release and setting up a Homebrew tap are one command each.
+
 ### Why did you rename the project, and what did that involve?
 
 "Clock" is a plain name, and macOS already has a built-in Clock app, so the two would be confusing and hard to find. I renamed it to Time Tracker. The product name appears in many places: the app and bundle name, the bundle ID, `package.json` (`name` and `productName`), the window titles, the build folder and zip file, the settings folder (Electron derives it from the product name), the internal names, my local tooling, the docs, and the repository. I did a search for exact names, then read the leftover mentions to avoid renaming things that only use the ordinary word, like the "Clock" mode of the clock/timer/stopwatch switch. I did not launch the app afterwards. I checked the code's syntax, searched for the old internal names, and read the new build's `Info.plist`. I also had to leave two steps for myself: renaming the GitHub repo, and the folder I was working in.
@@ -189,6 +221,7 @@ Step 6 (click-through and hotkeys) is postponed on purpose. Click-through confli
 - I used an AI assistant to guide me and write code step by step. I tested each step myself and can explain every file.
 - The cause of the `NSWindow does not support nonactivating panel styleMask 0x80` warning is my understanding (Electron applies the non-activating flag and macOS complains), and I did not dig into Electron's source to confirm it. It is harmless in practice.
 - The full-screen behaviour was verified by hand, not by an automated test.
+- For Step 10, I tested the packaged app through its debugging port and from a fresh unzip, but I had not yet opened it by double-clicking, put it in Applications, or looked at its icon in Finder. After the rename I rebuilt it and only read its name tags, without launching it. It is Apple Silicon only, and macOS rejects it (ad-hoc signature).
 - For Step 8, I tested the settings with scripts that drove the real settings window, and looked at rendered images. I had not yet clicked the gear with a real mouse, tried the native color picker, opened settings over a full-screen app, or seen a real drag fire the "moved" event (the app also saves on quit to cover that).
 - For Step 7, I tested the size limits and the opacity cycle from code, and looked at rendered images. I had not yet grabbed the window edge with a real mouse. Size and opacity are not remembered between launches, and I made the largest size four inches wide, which is two inches tall, because of the 2:1 shape.
 - For Step 5, I tested the timer and stopwatch logic and the layout sizes with scripts that clicked the buttons in code and faked the time. I had not yet checked how it looks, or clicked the buttons with a real mouse while another app was in front.
@@ -208,4 +241,7 @@ Step 6 (click-through and hotkeys) is postponed on purpose. Click-through confli
 | Timer range | 1 to 99 minutes, default 25 (changeable in settings) |
 | Settings file | `~/Library/Application Support/Time Tracker/settings.json`, saved 300 ms after the last change |
 | Font choices | 6: System, Helvetica Neue, Avenir Next, Futura, Georgia, Menlo |
+| Packaged app | 253 MB (my code 36 KB, Electron 251 MB); zip 114 MB; Apple Silicon only |
+| Signing | ad-hoc, no hardened runtime (Gatekeeper rejects it) |
+| GitHub | `raj2208/Time-Tracker`, managed with the GitHub CLI |
 | Settings checks | 37 plain-Node checks for the store, plus scripted tests of the real windows |

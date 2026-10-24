@@ -67,6 +67,18 @@ Writing the journey docs at the end would mean forgetting the details, so I made
 - **Honest by design:** it must only record what actually happened and say what was not verified.
 - **Local only:** like the push skill, it lives in `.agents/skills/` and is gitignored.
 
+## The GitHub CLI
+
+Until the rename, everything on GitHub went through plain `git`. Renaming a repository is not a git operation, it is a GitHub one, so I installed the **GitHub CLI** (`gh`), the official command-line tool for GitHub.
+
+- **Install:** `brew install gh`. On my macOS version Homebrew builds it from source, so it took a few minutes and also installed Go as a build tool (about 240 MB).
+- **Log in:** `gh auth login --web`. It uses GitHub's *device flow*: it shows a one-time code, I open `github.com/login/device`, enter the code, and approve. The password is never typed into the terminal.
+- **What it got:** a token stored in the macOS keychain, with the scopes `repo`, `read:org`, and `gist`. `gh auth status` shows who is logged in.
+- **A side effect I checked for:** logging in can quietly change how `git push` signs in by editing `~/.gitconfig`. I backed that file up first and compared afterwards: no change. Pushing still uses the same keychain helper as before.
+- **First use:** `gh repo rename Time-Tracker`, then updating `origin` to the new address.
+
+It also opens up later steps: creating the GitHub Release in Step 11 is one command (`gh release create`), and so is setting up the Homebrew tap repository in Step 12.
+
 ## Hiccups
 
 ### Hiccup 1: a co-author line I did not want
