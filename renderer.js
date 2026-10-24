@@ -195,18 +195,30 @@ setMode(currentMode);
 
 // Each click makes the clock a bit more see-through, then it wraps back to solid.
 const OPACITY_LEVELS = [1, 0.8, 0.6, 0.4, 0.2];
-let opacityIndex = 0;
+let currentOpacity = 1;
 
 const opacityButton = document.getElementById("opacity-button");
 
+// The next step down from the current opacity, or back to solid if already at the lowest.
+// Starting from the current value means it still makes sense after opacity was set elsewhere.
+function nextOpacity(opacity) {
+  return OPACITY_LEVELS.find((level) => level < opacity - 0.01) ?? 1;
+}
+
+function showOpacity(opacity) {
+  currentOpacity = opacity;
+  const next = nextOpacity(opacity);
+  opacityButton.title = `Opacity: ${Math.round(opacity * 100)}%. Click for ${next === 1 ? "solid" : "less"}.`;
+}
+
+// clockApp comes from preload.js. The window itself is changed in main.js,
+// which also saves the setting so it is remembered next time.
 opacityButton.addEventListener("click", () => {
-  opacityIndex = (opacityIndex + 1) % OPACITY_LEVELS.length;
-  const opacity = OPACITY_LEVELS[opacityIndex];
-  const percent = Math.round(opacity * 100);
-  opacityButton.title = `Opacity: ${percent}%. Click for ${opacityIndex === OPACITY_LEVELS.length - 1 ? "solid" : "less"}.`;
-  // clockApp comes from preload.js. The window itself is changed in main.js.
-  window.clockApp.setOpacity(opacity);
+  window.clockApp.updateSettings({ opacity: nextOpacity(currentOpacity) });
 });
+
+window.clockApp.getSettings().then(({ settings }) => showOpacity(settings.opacity));
+window.clockApp.onSettingsChanged((settings) => showOpacity(settings.opacity));
 
 // ---- Main loop ----
 
