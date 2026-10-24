@@ -10,18 +10,23 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="time">--:--:--</div>
+    <!-- Only the display for the current mode is visible. -->
+    <div class="display" id="time" data-mode="clock">--:--:--</div>
+    <div class="display" id="timer-display" data-mode="timer">25:00</div>
+    <div class="display" id="stopwatch-display" data-mode="stopwatch">00:00.0</div>
 
-    <div class="row" id="timer">
-      <button id="timer-minus" title="One minute less">−</button>
-      <span id="timer-display">25:00</span>
-      <button id="timer-plus" title="One minute more">+</button>
-      <button id="timer-start">Start</button>
-    </div>
+    <div class="row">
+      <button id="mode-button" title="Switch between clock, timer, and stopwatch">Clock</button>
 
-    <div class="row" id="stopwatch">
-      <span id="stopwatch-display">00:00.0</span>
-      <button id="stopwatch-start">Start</button>
+      <span class="controls" data-mode="timer">
+        <button id="timer-minus" title="One minute less">−</button>
+        <button id="timer-plus" title="One minute more">+</button>
+        <button id="timer-start">Start</button>
+      </span>
+
+      <span class="controls" data-mode="stopwatch">
+        <button id="stopwatch-start">Start</button>
+      </span>
     </div>
 
     <script src="renderer.js"></script>

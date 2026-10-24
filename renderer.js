@@ -111,6 +111,31 @@ function renderStopwatch() {
 
 stopwatchStart.addEventListener("click", startStopwatch);
 
+// ---- Modes ----
+
+const MODES = ["clock", "timer", "stopwatch"];
+const MODE_LABELS = { clock: "Clock", timer: "Timer", stopwatch: "Stopwatch" };
+let currentMode = "clock";
+
+const modeButton = document.getElementById("mode-button");
+
+function setMode(mode) {
+  currentMode = mode;
+  modeButton.textContent = MODE_LABELS[mode];
+  // Show only the display and controls that belong to the current mode.
+  // The timer and stopwatch keep running in the background while hidden.
+  for (const element of document.querySelectorAll("[data-mode]")) {
+    element.hidden = element.dataset.mode !== mode;
+  }
+}
+
+function nextMode() {
+  setMode(MODES[(MODES.indexOf(currentMode) + 1) % MODES.length]);
+}
+
+modeButton.addEventListener("click", nextMode);
+setMode(currentMode);
+
 // ---- Main loop ----
 
 function render() {

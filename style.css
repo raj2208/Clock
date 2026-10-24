@@ -5,7 +5,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   background: #111;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -13,9 +13,14 @@ body {
   -webkit-app-region: drag;
 }
 
-#time {
+/* Without this, a rule like "display: flex" would override the hidden attribute. */
+[hidden] {
+  display: none !important;
+}
+
+.display {
   font-size: 40px;
-  /* Every digit gets the same width, so the clock doesn't wobble as numbers change. */
+  /* Every digit gets the same width, so the display doesn't wobble as numbers change. */
   font-variant-numeric: tabular-nums;
 }
 
@@ -23,8 +28,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 18px;
-  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  display: flex;
+  gap: 6px;
 }
 
 /* Buttons must opt out of dragging, or clicking them would just move the window. */
