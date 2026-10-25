@@ -9,7 +9,8 @@
     "icon": "electron scripts/make-icon.js && electron scripts/make-tray-icon.js",
     "package": "node scripts/package.js",
     "zip": "node scripts/make-zip.js",
-    "dist": "node scripts/package.js && node scripts/make-zip.js"
+    "dist": "node scripts/package.js && node scripts/make-zip.js",
+    "clean": "rm -rf out"
   },
   "author": "Raj Kumar Rai",
   "license": "ISC",
