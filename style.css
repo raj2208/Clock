@@ -102,3 +102,24 @@ button:disabled {
 .finished {
   color: #ff5f56;
 }
+
+/* The flash when the countdown reaches zero: the background pulses to red three times.
+   renderer.js adds the "flash" class and removes it when the animation ends. */
+body.flash {
+  animation: alert-flash 0.7s ease-in-out 3;
+}
+
+/* The number is normally red when finished, which would vanish on a red background. */
+body.flash .finished {
+  color: #ffffff;
+}
+
+@keyframes alert-flash {
+  0%,
+  100% {
+    background: var(--background, #111111);
+  }
+  50% {
+    background: #ff5f56;
+  }
+}

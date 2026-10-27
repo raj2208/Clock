@@ -85,6 +85,7 @@ function changeDuration(deltaMs) {
   if (timerIsRunning() || timerIsPaused()) return;
   timer.durationMs = Math.min(MAX_DURATION, Math.max(MIN_DURATION, timer.durationMs + deltaMs));
   timer.finished = false;
+  stopFlash();
   renderTimer();
 }
 
@@ -99,6 +100,7 @@ function toggleTimer() {
     timer.endTime = Date.now() + remainingMs;
     timer.pausedRemainingMs = null;
     timer.finished = false;
+    stopFlash();
   }
   renderTimer();
 }
@@ -107,7 +109,35 @@ function resetTimer() {
   timer.endTime = null;
   timer.pausedRemainingMs = null;
   timer.finished = false;
+  stopFlash();
   renderTimer();
+}
+
+// ---- Alert when the countdown reaches zero ----
+
+// What to do at zero. The real values arrive with the settings (see applySettings).
+let alertFlash = true;
+
+// Flashing is a CSS animation on the page: adding the class starts it, and it removes
+// itself when the animation ends (see the "animationend" listener below).
+function startFlash() {
+  document.body.classList.remove("flash");
+  // Reading offsetWidth forces the page to notice the class is gone, so adding it again
+  // restarts the animation from the beginning.
+  void document.body.offsetWidth;
+  document.body.classList.add("flash");
+}
+
+function stopFlash() {
+  document.body.classList.remove("flash");
+}
+
+document.body.addEventListener("animationend", (event) => {
+  if (event.target === document.body && event.animationName === "alert-flash") stopFlash();
+});
+
+function alertTimerFinished() {
+  if (alertFlash) startFlash();
 }
 
 function renderTimer() {
@@ -115,6 +145,7 @@ function renderTimer() {
   if (timerIsRunning() && now >= timer.endTime) {
     timer.endTime = null;
     timer.finished = true;
+    alertTimerFinished();
   }
 
   let remainingMs = timer.durationMs;
@@ -284,6 +315,7 @@ function applyAppearance(settings) {
 }
 
 function applySettings(settings) {
+  alertFlash = settings.alertFlash;
   showOpacity(settings.opacity);
   applyAppearance(settings);
 
