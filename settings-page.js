@@ -7,6 +7,8 @@ const textColor = document.getElementById("textColor");
 const fontSelect = document.getElementById("font");
 const hour12 = document.getElementById("hour12");
 const timerMinutes = document.getElementById("timerMinutes");
+const alertSound = document.getElementById("alertSound");
+const alertFlash = document.getElementById("alertFlash");
 
 // Shows the given settings in the controls.
 function showSettings(settings) {
@@ -18,6 +20,8 @@ function showSettings(settings) {
   textColor.value = settings.textColor;
   fontSelect.value = settings.font;
   hour12.checked = settings.hour12;
+  alertSound.value = settings.alertSound;
+  alertFlash.checked = settings.alertFlash;
   // Don't overwrite the number while I am in the middle of typing it.
   if (document.activeElement !== timerMinutes) timerMinutes.value = settings.timerMinutes;
 }
@@ -34,6 +38,8 @@ backgroundColor.addEventListener("input", () => send({ backgroundColor: backgrou
 textColor.addEventListener("input", () => send({ textColor: textColor.value }));
 fontSelect.addEventListener("change", () => send({ font: fontSelect.value }));
 hour12.addEventListener("change", () => send({ hour12: hour12.checked }));
+alertSound.addEventListener("change", () => send({ alertSound: alertSound.value }));
+alertFlash.addEventListener("change", () => send({ alertFlash: alertFlash.checked }));
 timerMinutes.addEventListener("input", () => {
   // An empty box while typing is not a number yet: wait for a real one.
   if (timerMinutes.value !== "") send({ timerMinutes: Number(timerMinutes.value) });
@@ -51,14 +57,20 @@ document.getElementById("reset").addEventListener("click", () => {
   }
 });
 
-window.timeTrackerApp.getSettings().then(({ settings, fonts }) => {
-  // The list of fonts comes from the main process, so it is defined in one place only.
-  for (const font of fonts) {
+// Fills a drop-down from a list of { key, label } sent by the main process.
+function fillSelect(select, options) {
+  for (const { key, label } of options) {
     const option = document.createElement("option");
-    option.value = font.key;
-    option.textContent = font.label;
-    fontSelect.append(option);
+    option.value = key;
+    option.textContent = label;
+    select.append(option);
   }
+}
+
+window.timeTrackerApp.getSettings().then(({ settings, fonts, sounds }) => {
+  // The lists come from the main process, so each one is defined in one place only.
+  fillSelect(fontSelect, fonts);
+  fillSelect(alertSound, sounds);
   showSettings(settings);
 });
 // Also fires when I change the main window itself, for example by dragging its edge.

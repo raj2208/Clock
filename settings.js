@@ -23,6 +23,15 @@ const FONT_OPTIONS = [
   { key: "mono", label: "Menlo (monospace)", stack: '"SF Mono", Menlo, monospace' },
 ];
 
+// The sounds that can play when the countdown reaches zero. The tones themselves are made
+// by alert-sound.js, which uses these same keys, so keep the two lists in step.
+const SOUND_OPTIONS = [
+  { key: "off", label: "Off" },
+  { key: "chime", label: "Chime" },
+  { key: "bell", label: "Bell" },
+  { key: "beep", label: "Beep" },
+];
+
 const DEFAULTS = {
   width: 220,
   opacity: 1,
@@ -36,6 +45,10 @@ const DEFAULTS = {
   hour12: false,
   // How long the countdown timer starts at, in minutes.
   timerMinutes: 25,
+  // What happens when the countdown reaches zero. Each one is independent, so turning the
+  // sound off and the flash off means nothing happens.
+  alertSound: "chime",
+  alertFlash: true,
 };
 
 const clamp = (number, min, max) => Math.min(max, Math.max(min, number));
@@ -53,6 +66,8 @@ const VALIDATORS = {
   font: (v) => (FONT_OPTIONS.some((option) => option.key === v) ? v : undefined),
   hour12: (v) => (typeof v === "boolean" ? v : undefined),
   timerMinutes: (v) => (Number.isFinite(v) ? Math.round(clamp(v, 1, 99)) : undefined),
+  alertSound: (v) => (SOUND_OPTIONS.some((option) => option.key === v) ? v : undefined),
+  alertFlash: (v) => (typeof v === "boolean" ? v : undefined),
 };
 
 // Copies the usable values from `input` over `base`. Unknown keys and bad values are skipped.
@@ -115,4 +130,4 @@ function createSettingsStore(filePath) {
   };
 }
 
-module.exports = { createSettingsStore, DEFAULTS, FONT_OPTIONS, LIMITS };
+module.exports = { createSettingsStore, DEFAULTS, FONT_OPTIONS, SOUND_OPTIONS, LIMITS };

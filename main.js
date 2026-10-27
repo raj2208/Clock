@@ -1,6 +1,6 @@
 const { app, BrowserWindow, Menu, Tray, ipcMain, nativeImage, screen } = require("electron");
 const path = require("path");
-const { createSettingsStore, FONT_OPTIONS, LIMITS } = require("./settings");
+const { createSettingsStore, FONT_OPTIONS, SOUND_OPTIONS, LIMITS } = require("./settings");
 
 // The window is always twice as wide as it is tall.
 const ASPECT_RATIO = 2;
@@ -119,7 +119,8 @@ function openSettingsWindow() {
 
   settingsWindow = new BrowserWindow({
     width: 380,
-    height: 700,
+    // Tall enough for every section, but never taller than the screen.
+    height: Math.min(790, screen.getPrimaryDisplay().workAreaSize.height),
     title: "Time Tracker settings",
     show: false,
     resizable: false,
@@ -220,7 +221,7 @@ function createTray() {
 
 // ---- Messages from the pages ----
 
-ipcMain.handle("settings:get", () => ({ settings: store.get(), fonts: FONT_OPTIONS }));
+ipcMain.handle("settings:get", () => ({ settings: store.get(), fonts: FONT_OPTIONS, sounds: SOUND_OPTIONS }));
 
 ipcMain.handle("settings:update", (event, partial) => {
   const before = store.get();
