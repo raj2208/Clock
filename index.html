@@ -15,6 +15,17 @@
     <!-- Only the display for the current mode is visible. -->
     <div class="display" id="time" data-mode="clock">--:--:--</div>
     <div class="display" id="timer-display" data-mode="timer">25:00</div>
+    <!-- Takes the place of the timer display while I type a time (double-click the time). -->
+    <input
+      class="display"
+      id="timer-edit"
+      type="text"
+      maxlength="5"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Timer length, as minutes or minutes:seconds"
+      hidden
+    />
     <div class="display" id="stopwatch-display" data-mode="stopwatch">00:00.0</div>
 
     <div class="row">

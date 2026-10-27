@@ -34,6 +34,26 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* The page is a drag area, so the timer display and its edit box must opt out, or a
+   double-click and typing would never reach them. */
+#timer-display,
+#timer-edit {
+  -webkit-app-region: no-drag;
+}
+
+#timer-edit {
+  width: 3.6em;
+  padding: 0;
+  border: none;
+  border-radius: 0.4rem;
+  background: rgba(128, 128, 128, 0.25);
+  /* Inputs do not inherit the font or color by default. */
+  font-family: inherit;
+  color: inherit;
+  text-align: center;
+  outline: 0.1rem solid rgba(128, 128, 128, 0.7);
+}
+
 .row {
   display: flex;
   align-items: center;

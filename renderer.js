@@ -4,6 +4,7 @@ const MAX_DURATION = 99 * MINUTE;
 
 const timeElement = document.getElementById("time");
 const timerDisplay = document.getElementById("timer-display");
+const timerEdit = document.getElementById("timer-edit");
 const timerMinus = document.getElementById("timer-minus");
 const timerPlus = document.getElementById("timer-plus");
 const timerToggle = document.getElementById("timer-toggle");
@@ -83,13 +84,17 @@ const timerIsIdle = () => !timerIsRunning() && !timerIsPaused() && !timer.finish
 function changeDuration(deltaMs) {
   // The duration can only change while the timer is idle or finished.
   if (timerIsRunning() || timerIsPaused()) return;
-  timer.durationMs = Math.min(MAX_DURATION, Math.max(MIN_DURATION, timer.durationMs + deltaMs));
+  // The shortest the buttons go is one minute, unless a typed time is already shorter.
+  const floor = Math.min(MIN_DURATION, timer.durationMs);
+  timer.durationMs = Math.min(MAX_DURATION, Math.max(floor, timer.durationMs + deltaMs));
   timer.finished = false;
   stopFlash();
   renderTimer();
 }
 
 function toggleTimer() {
+  // Starting while a time is being typed uses what was typed.
+  finishTimerEdit(true);
   if (timerIsRunning()) {
     // Pause: remember how much time is left.
     timer.pausedRemainingMs = timer.endTime - Date.now();
@@ -106,12 +111,63 @@ function toggleTimer() {
 }
 
 function resetTimer() {
+  finishTimerEdit(false);
   timer.endTime = null;
   timer.pausedRemainingMs = null;
   timer.finished = false;
   stopFlash();
   renderTimer();
 }
+
+// ---- Typing a timer length ----
+//
+// Double-click the time to type a length. "25" means 25 minutes, "5:30" means 5 minutes
+// 30 seconds. Enter or clicking away keeps it, Escape cancels.
+
+let editingTimer = false;
+
+// Turns what was typed into milliseconds, or null if it is not a usable time.
+function parseTimerInput(text) {
+  const match = /^(\d{1,2})(?::([0-5]\d))?$/.exec(text.trim());
+  if (!match) return null;
+  // The first number is minutes, and the optional number after the colon is seconds.
+  const seconds = Number(match[1]) * 60 + Number(match[2] || 0);
+  if (seconds === 0) return null;
+  return Math.min(seconds * 1000, MAX_DURATION);
+}
+
+function startTimerEdit() {
+  // Like the + and - buttons, the length can only change while the timer is not counting.
+  if (editingTimer || timerIsRunning() || timerIsPaused()) return;
+  editingTimer = true;
+  timerEdit.value = formatMinutesSeconds(timer.durationMs);
+  timerDisplay.hidden = true;
+  timerEdit.hidden = false;
+  timerEdit.focus();
+  timerEdit.select();
+}
+
+// `save` false throws away what was typed. Typing something unusable also changes nothing.
+function finishTimerEdit(save) {
+  if (!editingTimer) return;
+  editingTimer = false;
+  const durationMs = save ? parseTimerInput(timerEdit.value) : null;
+  timerEdit.hidden = true;
+  timerDisplay.hidden = false;
+  if (durationMs !== null) {
+    timer.durationMs = durationMs;
+    timer.finished = false;
+    stopFlash();
+  }
+  renderTimer();
+}
+
+timerDisplay.addEventListener("dblclick", startTimerEdit);
+timerEdit.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") finishTimerEdit(true);
+  else if (event.key === "Escape") finishTimerEdit(false);
+});
+timerEdit.addEventListener("blur", () => finishTimerEdit(true));
 
 // ---- Alert when the countdown reaches zero ----
 
@@ -159,6 +215,7 @@ function renderTimer() {
 
   timerDisplay.textContent = formatMinutesSeconds(remainingMs);
   timerDisplay.classList.toggle("finished", timer.finished);
+  timerDisplay.title = timerIsRunning() || timerIsPaused() ? "" : "Double-click to type a time";
 
   timerToggle.textContent = timerIsRunning() ? PAUSE : PLAY;
   timerToggle.title = timerIsRunning() ? "Pause" : timerIsPaused() ? "Resume" : "Start";
@@ -234,6 +291,8 @@ let currentMode = "clock";
 const modeButton = document.getElementById("mode-button");
 
 function setMode(mode) {
+  // Leaving the timer in the middle of typing a time throws the typing away.
+  finishTimerEdit(false);
   currentMode = mode;
   modeButton.textContent = MODE_LABELS[mode];
   // Show only the display and controls that belong to the current mode.
