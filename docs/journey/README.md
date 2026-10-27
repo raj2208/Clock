@@ -20,7 +20,7 @@ A small always-on-top clock for macOS that floats in the top-right corner and st
 | 6 | Click-through and hotkeys | Postponed on purpose (I did Step 7 first) |
 | 7 | Resize and opacity | Done (tested by script and rendered image; I still need to try edge-dragging by hand) |
 | 8 | Settings window (colors, font, time format, timer length, saved settings) | Done (tested by script and rendered images; I still need to try it by hand) |
-| 9 | Polish: menu bar icon and menu | Menu bar icon done (tested by script; I still need to look at it in the real menu bar). Zero-alert and countdown text are next |
+| 9 | Polish: menu bar icon and menu | Menu bar icon done (tested by script; I still need to look at it in the real menu bar). The zero alert is next (the menu bar countdown text was dropped) |
 | 10 | Package as a real `Time Tracker.app` (icon, zip, checksum) | Built and tested by script; I still need to open it by hand |
 | 11 | Publish a GitHub Release | Planned |
 | 12 | Install with Homebrew | Planned |

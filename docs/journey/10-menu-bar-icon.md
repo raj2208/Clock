@@ -103,7 +103,7 @@ I could not look at the real menu bar, and macOS has no easy way to click a menu
 ## Not included yet
 
 - **Launch at login.** It changes the Mac's login items, so I left it out rather than ship something I could not test without altering your system. It should also only work in the packaged app, not in `pnpm start`.
-- **The countdown text beside the icon.** A running timer could show `24:30` in the menu bar.
+- **The countdown text beside the icon.** A running timer could show `24:30` in the menu bar. I later decided I do not need it, so it is dropped from the roadmap.
 
 ## Lessons
 
