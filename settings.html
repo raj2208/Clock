@@ -64,7 +64,10 @@
       <h2>When the timer ends</h2>
       <label class="field">
         <span>Sound</span>
-        <select id="alertSound"></select>
+        <span class="sound-picker">
+          <select id="alertSound"></select>
+          <button id="alertPreview" type="button">Preview</button>
+        </span>
       </label>
       <label class="field">
         <span>Flash the clock</span>
@@ -88,6 +91,7 @@
       <button id="reset" class="reset">Reset everything to defaults</button>
     </section>
 
+    <script src="alert-sound.js"></script>
     <script src="settings-page.js"></script>
   </body>
 </html>

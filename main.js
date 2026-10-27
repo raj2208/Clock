@@ -84,6 +84,8 @@ function createMainWindow() {
     webPreferences: {
       // Runs before the page loads and gives it a safe way to message this file.
       preload: path.join(__dirname, "preload.js"),
+      // The end-of-countdown sound plays without anyone clicking at that moment.
+      autoplayPolicy: "no-user-gesture-required",
     },
   });
 

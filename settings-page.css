@@ -86,3 +86,9 @@ input[type="number"] {
   font-size: 12px;
   opacity: 0.6;
 }
+
+.sound-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

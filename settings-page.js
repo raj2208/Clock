@@ -40,6 +40,8 @@ fontSelect.addEventListener("change", () => send({ font: fontSelect.value }));
 hour12.addEventListener("change", () => send({ hour12: hour12.checked }));
 alertSound.addEventListener("change", () => send({ alertSound: alertSound.value }));
 alertFlash.addEventListener("change", () => send({ alertFlash: alertFlash.checked }));
+// Plays the chosen sound once ("off" is not a sound, so it plays nothing).
+document.getElementById("alertPreview").addEventListener("click", () => playAlertSound(alertSound.value, 1));
 timerMinutes.addEventListener("input", () => {
   // An empty box while typing is not a number yet: wait for a real one.
   if (timerMinutes.value !== "") send({ timerMinutes: Number(timerMinutes.value) });

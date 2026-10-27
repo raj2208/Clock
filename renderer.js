@@ -117,6 +117,9 @@ function resetTimer() {
 
 // What to do at zero. The real values arrive with the settings (see applySettings).
 let alertFlash = true;
+let alertSoundKey = "chime";
+// How many times the sound plays when the countdown ends.
+const ALERT_REPEATS = 3;
 
 // Flashing is a CSS animation on the page: adding the class starts it, and it removes
 // itself when the animation ends (see the "animationend" listener below).
@@ -138,6 +141,7 @@ document.body.addEventListener("animationend", (event) => {
 
 function alertTimerFinished() {
   if (alertFlash) startFlash();
+  playAlertSound(alertSoundKey, ALERT_REPEATS);
 }
 
 function renderTimer() {
@@ -316,6 +320,7 @@ function applyAppearance(settings) {
 
 function applySettings(settings) {
   alertFlash = settings.alertFlash;
+  alertSoundKey = settings.alertSound;
   showOpacity(settings.opacity);
   applyAppearance(settings);
 
